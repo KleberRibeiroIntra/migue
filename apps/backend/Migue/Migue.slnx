@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Migue.Api/Migue.Api.csproj" />
+  <Project Path="Migue.Domain/Migue.Domain.csproj" />
+  <Project Path="Migue.Domain.Data/Migue.Domain.Data.csproj" />
+  <Project Path="Migue.Domain.AppService/Migue.Domain.AppService.csproj" />
+  <Project Path="Migue.IoC/Migue.IoC.csproj" />
+</Solution>
