@@ -1,3 +1,4 @@
+using Migue.Api.Middlewares;
 using Migue.Domain.Data;
 using Migue.IoC;
 
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseAuthorization();
 

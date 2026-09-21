@@ -1,12 +1,16 @@
+using AutoMapper;
+using FluentValidation;
+using Migue.Domain.AppService.Dtos.Requests;
+using Migue.Domain.AppService.Dtos.Responses;
 using Migue.Domain.Entities;
 using Migue.Domain.Repositories;
-using Migue.Domain.Services;
 
 namespace Migue.Domain.AppService.Services;
 
-public class UserService : ServiceBase<User>, IUserService
+public class UserService : ServiceBase<User, UserRequest, UserResponse>, IUserService
 {
-    public UserService(IUserRepository repository) : base(repository)
+    public UserService(IUserRepository repository, IMapper mapper, IValidator<User> validator)
+        : base(repository, mapper, validator)
     {
     }
 }

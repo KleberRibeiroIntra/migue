@@ -1,11 +1,12 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Migue.Domain.AppService.Mappings;
 using Migue.Domain.AppService.Services;
+using Migue.Domain.AppService.Validators;
 using Migue.Domain.Data;
 using Migue.Domain.Data.Repositories;
 using Migue.Domain.Repositories;
-using Migue.Domain.Services;
 
 namespace Migue.IoC;
 
@@ -25,6 +26,7 @@ public static class DependencyInjectionConfig
         services.AddScoped<IUserService, UserService>();
 
         services.AddAutoMapper(cfg => { }, typeof(RequestMappingProfile).Assembly);
+        services.AddValidatorsFromAssemblyContaining<ProjectValidator>();
 
         return services;
     }
