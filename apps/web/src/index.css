@@ -1,19 +1,18 @@
 :root {
   color-scheme: light dark;
-  font: 16px/1.4 system-ui, 'Segoe UI', Roboto, sans-serif;
+  --migue-accent: #f4600b;
+  --migue-accent-dark: #d9480f;
+  --migue-ink: #241c15;
+  --migue-cream: #fff8f0;
+  --migue-muted: #6b5f52;
+  --font-display: 'Fredoka', sans-serif;
+  --font-meme: 'Bangers', 'Fredoka', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
 }
 
 body {
   margin: 0;
-}
-
-table {
-  text-align: left;
-}
-
-form div {
-  margin-bottom: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  font-family: var(--font-body);
+  color: var(--migue-ink);
+  background: var(--migue-cream);
 }

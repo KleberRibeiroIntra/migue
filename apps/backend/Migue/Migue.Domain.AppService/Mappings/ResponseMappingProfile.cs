@@ -14,6 +14,12 @@ public class ResponseMappingProfile : Profile
         CreateMap<Project, ProjectResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
+        CreateMap<SoftSkillOption, SoftSkillOptionResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
+
+        CreateMap<SoftSkill, SoftSkillResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
+
         CreateMap<User, UserResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
     }

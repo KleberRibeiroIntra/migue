@@ -19,10 +19,12 @@ public static class DependencyInjectionConfig
 
         services.AddScoped<IActivityRepository, ActivityRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<ISoftSkillRepository, SoftSkillRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IActivityService, ActivityService>();
         services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<ISoftSkillService, SoftSkillService>();
         services.AddScoped<IUserService, UserService>();
 
         services.AddAutoMapper(cfg => { }, typeof(RequestMappingProfile).Assembly);

@@ -9,10 +9,6 @@ public class MigueDbContext : DbContext
     {
     }
 
-    public DbSet<Activity> Activities => Set<Activity>();
-    public DbSet<Project> Projects => Set<Project>();
-    public DbSet<User> Users => Set<User>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         RegisterAllEntities(modelBuilder);

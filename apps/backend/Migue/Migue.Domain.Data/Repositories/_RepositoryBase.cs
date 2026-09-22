@@ -71,7 +71,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : BaseEntit
         return entity;
     }
 
-    public Task<T?> GetByIdAsync(Guid id) =>
+    public virtual Task<T?> GetByIdAsync(Guid id) =>
         DbSet.FirstOrDefaultAsync(e => e.NavigationId == id && e.Active);
 
     public Task<List<T>> GetAllAsync() =>
@@ -80,7 +80,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : BaseEntit
     public Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate) =>
         DbSet.Where(e => e.Active).Where(predicate).ToListAsync();
 
-    public Task<DynamicQueryResult<T>> GetPagedAsync(DynamicQuery query) =>
+    public virtual Task<DynamicQueryResult<T>> GetPagedAsync(DynamicQuery query) =>
         DbSet.Where(e => e.Active).ToPagedAsync(query);
 
     public IQueryable<T> Query() => DbSet.Where(e => e.Active);

@@ -1,7 +1,15 @@
-import { apiClient } from './client'
-import type { LoginRequest, LoginResponse, RegisterRequest } from '../types/auth'
+import type { AuthUser } from '../store/authStore'
+import { apiFetch } from './client'
 
-export const authApi = {
-  register: (data: RegisterRequest) => apiClient.post<{ id: string }>('/api/auth/register', data),
-  login: (data: LoginRequest) => apiClient.post<LoginResponse>('/api/auth/login', data),
+export interface LoginResult {
+  token: string
+  expiresAt: string
+  user: AuthUser
+}
+
+export function login(email: string, password: string) {
+  return apiFetch<LoginResult>('/Auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })
 }

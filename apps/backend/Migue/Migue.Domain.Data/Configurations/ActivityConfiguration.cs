@@ -11,7 +11,7 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.HasIndex(a => a.NavigationId).IsUnique();
 
         builder.HasOne(a => a.Project)
-            .WithMany()
+            .WithMany(p => p.Activities)
             .HasForeignKey(a => a.ProjectId)
             .HasPrincipalKey(p => p.NavigationId)
             .OnDelete(DeleteBehavior.Restrict);

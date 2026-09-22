@@ -10,6 +10,7 @@ public class RequestMappingProfile : Profile
     {
         CreateMap<ActivityRequest, Activity>();
         CreateMap<ProjectRequest, Project>();
+        CreateMap<SoftSkillRequest, SoftSkill>();
         CreateMap<UserRequest, User>();
     }
 }

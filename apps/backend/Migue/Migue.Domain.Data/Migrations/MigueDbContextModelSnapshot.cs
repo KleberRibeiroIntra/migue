@@ -79,7 +79,134 @@ namespace Migue.Domain.Data.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Activities", (string)null);
+                    b.ToTable("Activity");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.Competency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.ToTable("Competency");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CompetencyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompetencyId");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.ToTable("CompetencyQuestion");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestionOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CompetencyQuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompetencyQuestionId");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.ToTable("CompetencyQuestionOption");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.Project", b =>
@@ -118,7 +245,97 @@ namespace Migue.Domain.Data.Migrations
                     b.HasIndex("NavigationId")
                         .IsUnique();
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Project");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.SoftSkill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.ToTable("SoftSkill");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.SoftSkillOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("SoftSkillId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("SoftSkillId");
+
+                    b.ToTable("SoftSkillOption");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.User", b =>
@@ -162,18 +379,163 @@ namespace Migue.Domain.Data.Migrations
                     b.HasIndex("NavigationId")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.UserCompetencyAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CompetencyQuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CompetencyQuestionOptionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompetencyQuestionId");
+
+                    b.HasIndex("CompetencyQuestionOptionId");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserCompetencyAnswer");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.Activity", b =>
                 {
                     b.HasOne("Migue.Domain.Entities.Project", "Project")
-                        .WithMany()
+                        .WithMany("Activities")
                         .HasForeignKey("ProjectId")
                         .HasPrincipalKey("NavigationId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.Competency", "Competency")
+                        .WithMany("Questions")
+                        .HasForeignKey("CompetencyId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Competency");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestionOption", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.CompetencyQuestion", "CompetencyQuestion")
+                        .WithMany("Options")
+                        .HasForeignKey("CompetencyQuestionId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CompetencyQuestion");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.SoftSkillOption", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.SoftSkill", "SoftSkill")
+                        .WithMany("Options")
+                        .HasForeignKey("SoftSkillId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SoftSkill");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.UserCompetencyAnswer", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.CompetencyQuestion", "CompetencyQuestion")
+                        .WithMany("Answers")
+                        .HasForeignKey("CompetencyQuestionId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Migue.Domain.Entities.CompetencyQuestionOption", "CompetencyQuestionOption")
+                        .WithMany("Answers")
+                        .HasForeignKey("CompetencyQuestionOptionId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Migue.Domain.Entities.User", "User")
+                        .WithMany("CompetencyAnswers")
+                        .HasForeignKey("UserId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CompetencyQuestion");
+
+                    b.Navigation("CompetencyQuestionOption");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.Competency", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
+                {
+                    b.Navigation("Answers");
+
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestionOption", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.Project", b =>
+                {
+                    b.Navigation("Activities");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.SoftSkill", b =>
+                {
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.User", b =>
+                {
+                    b.Navigation("CompetencyAnswers");
                 });
 #pragma warning restore 612, 618
         }

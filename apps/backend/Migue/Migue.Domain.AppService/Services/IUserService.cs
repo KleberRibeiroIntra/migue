@@ -6,4 +6,5 @@ namespace Migue.Domain.AppService.Services;
 
 public interface IUserService : IServiceBase<User, UserRequest, UserResponse>
 {
+    Task<LoginResponse?> LoginAsync(LoginRequest request);
 }
