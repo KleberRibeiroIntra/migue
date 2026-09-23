@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Migue.Api.Extensions;
 using Migue.Domain;
 using Migue.Domain.AppService.Dtos.QueryRequests;
 using Migue.Domain.AppService.Dtos.Requests;
@@ -12,10 +14,12 @@ namespace Migue.Api.Controllers;
 public class SoftSkillController : ControllerBase
 {
     private readonly ISoftSkillService _softSkillService;
+    private readonly IUserSoftSkillAnswerService _answerService;
 
-    public SoftSkillController(ISoftSkillService softSkillService)
+    public SoftSkillController(ISoftSkillService softSkillService, IUserSoftSkillAnswerService answerService)
     {
         _softSkillService = softSkillService;
+        _answerService = answerService;
     }
 
     [HttpGet("paged")]
@@ -51,5 +55,23 @@ public class SoftSkillController : ControllerBase
     {
         var deleted = await _softSkillService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
+    }
+
+    /// <summary>Respostas mais recentes do usuário autenticado, uma por soft skill.</summary>
+    [Authorize]
+    [HttpGet("answers/me")]
+    public async Task<ActionResult<List<UserSoftSkillAnswerResponse>>> GetMyAnswers()
+    {
+        var answers = await _answerService.GetLatestByUserAsync(User.GetUserId());
+        return Ok(answers);
+    }
+
+    /// <summary>Salva uma nova rodada de respostas do usuário autenticado.</summary>
+    [Authorize]
+    [HttpPost("answers")]
+    public async Task<ActionResult<List<UserSoftSkillAnswerResponse>>> SaveMyAnswers(SaveUserSoftSkillAnswersRequest request)
+    {
+        var answers = await _answerService.SaveAsync(User.GetUserId(), request);
+        return Ok(answers);
     }
 }

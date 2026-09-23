@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using Migue.Domain.AppService.Dtos.Requests;
 using Migue.Domain.AppService.Dtos.Responses;
 using Migue.Domain.Entities;
@@ -20,6 +21,25 @@ public class UserService : ServiceBase<User, UserRequest, UserResponse>, IUserSe
         _userRepository = repository;
         _mapper = mapper;
         _tokenGenerator = tokenGenerator;
+    }
+
+    protected override async Task ValidateCreateAsync(User entity)
+    {
+        await base.ValidateCreateAsync(entity);
+        await EnsureEmailIsUniqueAsync(entity);
+    }
+
+    protected override async Task ValidateUpdateAsync(User entity)
+    {
+        await base.ValidateUpdateAsync(entity);
+        await EnsureEmailIsUniqueAsync(entity);
+    }
+
+    private async Task EnsureEmailIsUniqueAsync(User entity)
+    {
+        var existing = await _userRepository.GetByEmailAsync(entity.Email);
+        if (existing is not null && existing.NavigationId != entity.NavigationId)
+            throw new ValidationException([new ValidationFailure(nameof(User.Email), "Já existe um usuário com este e-mail.")]);
     }
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request)

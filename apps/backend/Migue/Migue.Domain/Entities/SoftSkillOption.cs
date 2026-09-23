@@ -8,4 +8,6 @@ public record SoftSkillOption : BaseEntity
     public int Order { get; set; }
 
     public SoftSkill? SoftSkill { get; set; }
+
+    public ICollection<UserSoftSkillAnswer> Answers { get; set; } = new List<UserSoftSkillAnswer>();
 }

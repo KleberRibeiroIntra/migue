@@ -5,9 +5,10 @@ interface CompetencyOptionListProps {
   options: string[]
   value: number | undefined
   onChange: (index: number) => void
+  disabled?: boolean
 }
 
-export function CompetencyOptionList({ questionId, options, value, onChange }: CompetencyOptionListProps) {
+export function CompetencyOptionList({ questionId, options, value, onChange, disabled }: CompetencyOptionListProps) {
   return (
     <Box display="flex" flexDirection="column" gap="8px">
       {options.map((option, index) => {
@@ -26,16 +27,18 @@ export function CompetencyOptionList({ questionId, options, value, onChange }: C
             borderRadius="10px"
             px="12px"
             py="10px"
-            cursor="pointer"
+            cursor={disabled ? 'default' : 'pointer'}
+            opacity={disabled && !selected ? 0.6 : 1}
           >
             <input
               type="radio"
               name={questionId}
               checked={selected}
+              disabled={disabled}
               onChange={() => onChange(index)}
               style={{ marginTop: 4, flexShrink: 0 }}
             />
-            <Text fontSize="14px" color="var(--migue-ink)">
+            <Text fontSize="16px" color="var(--migue-ink)">
               {option}
             </Text>
           </Box>

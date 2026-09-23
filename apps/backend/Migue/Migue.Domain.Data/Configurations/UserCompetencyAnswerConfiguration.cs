@@ -9,6 +9,13 @@ public class UserCompetencyAnswerConfiguration : IEntityTypeConfiguration<UserCo
     public void Configure(EntityTypeBuilder<UserCompetencyAnswer> builder)
     {
         builder.HasIndex(a => a.NavigationId).IsUnique();
+        builder.HasIndex(a => new { a.CompetencyAssessmentId, a.CompetencyQuestionId }).IsUnique();
+
+        builder.HasOne(a => a.CompetencyAssessment)
+            .WithMany(s => s.Answers)
+            .HasForeignKey(a => a.CompetencyAssessmentId)
+            .HasPrincipalKey(s => s.NavigationId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(a => a.User)
             .WithMany(u => u.CompetencyAnswers)

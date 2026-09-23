@@ -21,13 +21,13 @@ export function ScaleSelector({ value, onChange, options }: ScaleSelectorProps) 
           <Button
             key={option.value}
             type="button"
-            size="sm"
+            size="md"
             variant={selected ? 'solid' : 'outline'}
             colorPalette={selected ? 'orange' : 'gray'}
             borderColor={selected ? undefined : 'blackAlpha.200'}
             color={selected ? undefined : 'var(--migue-muted)'}
             fontWeight="600"
-            fontSize="13px"
+            fontSize="15px"
             onClick={() => onChange(option.value)}
             aria-pressed={selected}
           >

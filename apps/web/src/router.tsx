@@ -1,37 +1,61 @@
 import { Outlet, createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router'
 import { AppShell } from './components/dashboard/AppShell'
-import { HomePage } from './pages/HomePage/HomePage'
+import { LoginPage } from './pages/LoginPage/LoginPage'
 import { DashboardPage } from './pages/DashboardPage/DashboardPage'
 import { CompetenciasPage } from './pages/CompetenciasPage/CompetenciasPage'
 import { CompetenciasFormPage } from './pages/CompetenciasFormPage/CompetenciasFormPage'
 import { BehaviorFormPage } from './pages/BehaviorFormPage/BehaviorFormPage'
+import { BehaviorReportPage } from './pages/BehaviorReportPage/BehaviorReportPage'
+import { UsersPage } from './pages/UsersPage/UsersPage'
+import { UserFormPage } from './pages/UserFormPage/UserFormPage'
 import { authStore } from './store/authStore'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 })
 
-const homeRoute = createRoute({
+const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
-  component: HomePage,
+  path: '/login',
+  beforeLoad: () => {
+    if (authStore.state.token) {
+      throw redirect({ to: '/' })
+    }
+  },
+  component: LoginPage,
 })
 
-const dashboardLayoutRoute = createRoute({
+// Layout sem path: exige login e renderiza o AppShell para todas as rotas autenticadas.
+const authenticatedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/dashboard',
+  id: 'authenticated',
   beforeLoad: () => {
     if (!authStore.state.token) {
-      throw redirect({ to: '/' })
+      throw redirect({ to: '/login' })
     }
   },
   component: AppShell,
 })
 
+// Tela inicial do usuário autenticado.
+const homeRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/',
+  component: DashboardPage,
+})
+
+const dashboardLayoutRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/dashboard',
+})
+
+// O dashboard agora é a tela inicial; mantém /dashboard funcionando para links antigos.
 const dashboardIndexRoute = createRoute({
   getParentRoute: () => dashboardLayoutRoute,
   path: '/',
-  component: DashboardPage,
+  beforeLoad: () => {
+    throw redirect({ to: '/' })
+  },
 })
 
 const competenciasRoute = createRoute({
@@ -41,8 +65,8 @@ const competenciasRoute = createRoute({
 })
 
 const competenciasFormRoute = createRoute({
-  getParentRoute: () => dashboardLayoutRoute,
-  path: '/competency/form',
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/softSkills/form',
   component: CompetenciasFormPage,
 })
 
@@ -52,13 +76,44 @@ const behaviorFormRoute = createRoute({
   component: BehaviorFormPage,
 })
 
+const behaviorReportRoute = createRoute({
+  getParentRoute: () => dashboardLayoutRoute,
+  path: '/behavior/report',
+  component: BehaviorReportPage,
+})
+
+const usersRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/users',
+  component: UsersPage,
+})
+
+const userCreateRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/users/new',
+  component: UserFormPage,
+})
+
+const userEditRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/users/$id',
+  component: UserFormPage,
+})
+
 const routeTree = rootRoute.addChildren([
-  homeRoute,
-  dashboardLayoutRoute.addChildren([
-    dashboardIndexRoute,
-    competenciasRoute,
+  loginRoute,
+  authenticatedLayoutRoute.addChildren([
+    homeRoute,
+    dashboardLayoutRoute.addChildren([
+      dashboardIndexRoute,
+      competenciasRoute,
+      behaviorFormRoute,
+      behaviorReportRoute,
+    ]),
     competenciasFormRoute,
-    behaviorFormRoute,
+    usersRoute,
+    userCreateRoute,
+    userEditRoute,
   ]),
 ])
 

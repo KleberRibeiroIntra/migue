@@ -1,4 +1,5 @@
 import { apiFetch } from './client'
+import type { PagedResult } from './crudApi'
 
 export interface SoftSkillOptionDto {
   id: string
@@ -16,13 +17,6 @@ export interface SoftSkillDto {
   updatedAt: string | null
   active: boolean
   options: SoftSkillOptionDto[]
-}
-
-interface PagedResult<T> {
-  pageSize: number
-  pageNumber: number
-  totalRows: number
-  result: T[]
 }
 
 export async function getSoftSkills(): Promise<SoftSkillDto[]> {
