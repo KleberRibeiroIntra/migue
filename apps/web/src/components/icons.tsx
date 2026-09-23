@@ -54,6 +54,38 @@ export function ProfileIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function UsersIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" />
+      <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8" />
+      <path d="M18 14.3c2.1.7 3.5 2.8 3.5 5.7" />
+    </IconBase>
+  )
+}
+
+export function EditIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </IconBase>
+  )
+}
+
+export function TrashIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <polyline points="4 7 20 7" />
+      <path d="M9 7V4.5h6V7" />
+      <path d="M6 7l1 13h10l1-13" />
+      <line x1="10" y1="11" x2="10" y2="16" />
+      <line x1="14" y1="11" x2="14" y2="16" />
+    </IconBase>
+  )
+}
+
 export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

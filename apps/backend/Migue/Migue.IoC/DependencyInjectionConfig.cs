@@ -18,14 +18,21 @@ public static class DependencyInjectionConfig
         services.AddDbContext<MigueDbContext>(options => options.UseSqlite(connectionString));
 
         services.AddScoped<IActivityRepository, ActivityRepository>();
+        services.AddScoped<ICompetencyAssessmentRepository, CompetencyAssessmentRepository>();
+        services.AddScoped<ICompetencyRepository, CompetencyRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<ISoftSkillRepository, SoftSkillRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserSoftSkillAnswerRepository, UserSoftSkillAnswerRepository>();
 
         services.AddScoped<IActivityService, ActivityService>();
+        services.AddScoped<ICompetencyAssessmentService, CompetencyAssessmentService>();
+        services.AddScoped<ICompetencyService, CompetencyService>();
+        services.AddScoped<ICompetencyReportService, CompetencyReportService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<ISoftSkillService, SoftSkillService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserSoftSkillAnswerService, UserSoftSkillAnswerService>();
 
         services.AddAutoMapper(cfg => { }, typeof(RequestMappingProfile).Assembly);
         services.AddValidatorsFromAssemblyContaining<ProjectValidator>();

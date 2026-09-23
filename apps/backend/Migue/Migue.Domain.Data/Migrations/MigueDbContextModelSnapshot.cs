@@ -121,6 +121,49 @@ namespace Migue.Domain.Data.Migrations
                     b.ToTable("Competency");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyAssessment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("CompetencyAssessment");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
                 {
                     b.Property<int>("Id")
@@ -187,6 +230,12 @@ namespace Migue.Domain.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Signal")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
@@ -391,6 +440,15 @@ namespace Migue.Domain.Data.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("AnsweredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ChangeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CompetencyAssessmentId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("CompetencyQuestionId")
                         .HasColumnType("TEXT");
 
@@ -426,7 +484,57 @@ namespace Migue.Domain.Data.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("CompetencyAssessmentId", "CompetencyQuestionId")
+                        .IsUnique();
+
                     b.ToTable("UserCompetencyAnswer");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.UserSoftSkillAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SoftSkillId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SoftSkillOptionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("SoftSkillId");
+
+                    b.HasIndex("SoftSkillOptionId");
+
+                    b.HasIndex("UserId", "SoftSkillId", "CreatedAt");
+
+                    b.ToTable("UserSoftSkillAnswer");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.Activity", b =>
@@ -438,6 +546,18 @@ namespace Migue.Domain.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyAssessment", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.User", "User")
+                        .WithMany("CompetencyAssessments")
+                        .HasForeignKey("UserId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
@@ -478,6 +598,13 @@ namespace Migue.Domain.Data.Migrations
 
             modelBuilder.Entity("Migue.Domain.Entities.UserCompetencyAnswer", b =>
                 {
+                    b.HasOne("Migue.Domain.Entities.CompetencyAssessment", "CompetencyAssessment")
+                        .WithMany("Answers")
+                        .HasForeignKey("CompetencyAssessmentId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Migue.Domain.Entities.CompetencyQuestion", "CompetencyQuestion")
                         .WithMany("Answers")
                         .HasForeignKey("CompetencyQuestionId")
@@ -499,6 +626,8 @@ namespace Migue.Domain.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("CompetencyAssessment");
+
                     b.Navigation("CompetencyQuestion");
 
                     b.Navigation("CompetencyQuestionOption");
@@ -506,9 +635,44 @@ namespace Migue.Domain.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.UserSoftSkillAnswer", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.SoftSkill", "SoftSkill")
+                        .WithMany("Answers")
+                        .HasForeignKey("SoftSkillId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Migue.Domain.Entities.SoftSkillOption", "SoftSkillOption")
+                        .WithMany("Answers")
+                        .HasForeignKey("SoftSkillOptionId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Migue.Domain.Entities.User", "User")
+                        .WithMany("SoftSkillAnswers")
+                        .HasForeignKey("UserId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SoftSkill");
+
+                    b.Navigation("SoftSkillOption");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.Competency", b =>
                 {
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.CompetencyAssessment", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.CompetencyQuestion", b =>
@@ -530,12 +694,23 @@ namespace Migue.Domain.Data.Migrations
 
             modelBuilder.Entity("Migue.Domain.Entities.SoftSkill", b =>
                 {
+                    b.Navigation("Answers");
+
                     b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.SoftSkillOption", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.User", b =>
                 {
                     b.Navigation("CompetencyAnswers");
+
+                    b.Navigation("CompetencyAssessments");
+
+                    b.Navigation("SoftSkillAnswers");
                 });
 #pragma warning restore 612, 618
         }

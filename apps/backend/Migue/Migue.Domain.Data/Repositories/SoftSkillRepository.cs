@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Migue.Domain;
 using Migue.Domain.Data.Extensions;
 using Migue.Domain.Entities;
 using Migue.Domain.Repositories;
@@ -20,4 +19,9 @@ public class SoftSkillRepository : RepositoryBase<SoftSkill>, ISoftSkillReposito
         DbSet.Where(s => s.Active)
             .Include(s => s.Options)
             .ToPagedAsync(query);
+
+    public Task<List<SoftSkill>> GetAllWithOptionsAsync() =>
+        DbSet.Where(s => s.Active)
+            .Include(s => s.Options.Where(o => o.Active))
+            .ToListAsync();
 }

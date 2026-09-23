@@ -65,6 +65,29 @@ public static class DbSeeder
         await SeedSoftSkillsAsync(context);
         await SeedSoftSkillOptionsAsync(context);
         await SeedCompetencyQuestionsAsync(context);
+        await SeedCompetencyOptionScoresAsync(context);
+    }
+
+    /// <summary>Aplica o gabarito (peso + sinal) nas alternativas que ainda não têm, casando pelo texto da pergunta e ordem da opção.</summary>
+    public static async Task SeedCompetencyOptionScoresAsync(MigueDbContext context)
+    {
+        var questions = await context.Set<CompetencyQuestion>()
+            .Include(q => q.Options)
+            .Where(q => q.Options.Any(o => o.Score == 0))
+            .ToListAsync();
+
+        foreach (var question in questions)
+        {
+            if (!CompetencyOptionScoreSeedData.Scores.TryGetValue(question.Text, out var scores))
+                continue;
+
+            foreach (var option in question.Options.Where(o => o.Score == 0 && o.Order >= 1 && o.Order <= scores.Length))
+            {
+                (option.Score, option.Signal) = scores[option.Order - 1];
+            }
+        }
+
+        await context.SaveChangesAsync();
     }
 
     public static async Task SeedCompetenciesAsync(MigueDbContext context)

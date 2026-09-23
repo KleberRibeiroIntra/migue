@@ -1,33 +1,54 @@
-import { Avatar, Box, Button, Flex, Heading, Progress, Text } from '@chakra-ui/react'
+import { Avatar, Badge, Box, Button, Flex, Heading, Progress, Text } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { type FormEvent, useState } from 'react'
-import { CompetencyOptionList } from './CompetencyOptionList'
-import { competencyMapCategories, competencyMapTitle } from '../../data/competencyMap'
+import { ApiError } from '../../api/client'
+import {
+  AssessmentStatus,
+  type CompetencyAnswerDto,
+  type CompetencyAssessmentDto,
+} from '../../api/competencyAssessmentApi'
+import { type CompetencyDto, getCompetencies } from '../../api/competencyApi'
+import {
+  useAutosaveCompetencyAnswer,
+  useMyCompetencyAssessment,
+  useRestartCompetencyAssessment,
+  useSubmitCompetencyAssessment,
+} from '../../hooks/useCompetencyAssessment'
 import { authStore } from '../../store/authStore'
-import { behaviorStore, setBehaviorAnswers } from '../../store/behaviorStore'
+import { CompetencyOptionList } from './CompetencyOptionList'
 
-const totalQuestions = competencyMapCategories.reduce((sum, category) => sum + category.questions.length, 0)
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString('pt-BR')
+}
+
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function StatusBadge({ assessment }: { assessment: CompetencyAssessmentDto | null }) {
+  if (!assessment) return <Badge colorPalette="gray">Não iniciado</Badge>
+  if (assessment.status === AssessmentStatus.Submitted) {
+    return <Badge colorPalette="green">Enviado{assessment.submittedAt && ` em ${formatDate(assessment.submittedAt)}`}</Badge>
+  }
+  return <Badge colorPalette="orange">Rascunho</Badge>
+}
 
 export function BehaviorFormPage() {
   const user = useStore(authStore, (state) => state.user)
-  const currentAnswers = useStore(behaviorStore)
-  const [draft, setDraft] = useState<Record<string, number>>(() => ({ ...currentAnswers }))
-  const [submitted, setSubmitted] = useState(false)
+  // muda a cada "Nova autoavaliação" para remontar o formulário com as respostas do novo rascunho
+  const [formVersion, setFormVersion] = useState(0)
 
-  const answeredCount = Object.keys(draft).length
-  const isComplete = answeredCount === totalQuestions
+  const competenciesQuery = useQuery({
+    queryKey: ['competencies'],
+    queryFn: getCompetencies,
+  })
+  const assessmentQuery = useMyCompetencyAssessment()
 
-  function handleChange(questionId: string, index: number) {
-    setDraft((prev) => ({ ...prev, [questionId]: index }))
-    setSubmitted(false)
-  }
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    if (!isComplete) return
-    setBehaviorAnswers(draft)
-    setSubmitted(true)
-  }
+  const isLoading = competenciesQuery.isLoading || assessmentQuery.isLoading
+  const isError = competenciesQuery.isError || assessmentQuery.isError
+  const assessment = assessmentQuery.data
 
   return (
     <Box maxW="720px">
@@ -36,87 +57,272 @@ export function BehaviorFormPage() {
           <Avatar.Fallback name={user?.name} />
         </Avatar.Root>
         <Box>
-          <Heading fontFamily="var(--font-display)" color="var(--migue-ink)" fontSize="28px">
-            {competencyMapTitle}
-          </Heading>
-          <Text fontSize="13px" color="var(--migue-muted)">
+          <Flex align="center" gap="10px" wrap="wrap">
+            <Heading fontFamily="var(--font-display)" color="var(--migue-ink)" fontSize="30px">
+              Migué — Mapa de Competências
+            </Heading>
+            {assessment !== undefined && <StatusBadge assessment={assessment} />}
+          </Flex>
+          <Text fontSize="15px" color="var(--migue-muted)">
             Autoavaliação situacional · {user?.name ?? 'Você'}
           </Text>
         </Box>
       </Flex>
 
-      <Text color="var(--migue-muted)" mb="20px">
+      <Text color="var(--migue-muted)" fontSize="17px" mb="20px">
         Pra cada situação, escolha a alternativa que mais se parece com o que você realmente faria. Sem migué, hein.
       </Text>
 
+      {isLoading && (
+        <Text color="var(--migue-muted)" fontSize="16px" mb="20px">
+          Carregando...
+        </Text>
+      )}
+
+      {isError && (
+        <Text color="red.600" fontSize="16px" mb="20px">
+          Não foi possível carregar as competências da API.
+        </Text>
+      )}
+
+      {competenciesQuery.data && assessment !== undefined && (
+        <BehaviorForm
+          key={formVersion}
+          competencies={competenciesQuery.data}
+          assessment={assessment}
+          onRestarted={() => setFormVersion((version) => version + 1)}
+        />
+      )}
+    </Box>
+  )
+}
+
+interface BehaviorFormProps {
+  competencies: CompetencyDto[]
+  assessment: CompetencyAssessmentDto | null
+  onRestarted: () => void
+}
+
+function BehaviorForm({ competencies, assessment, onRestarted }: BehaviorFormProps) {
+  // questionId -> optionId escolhida; nasce das respostas já salvas no rascunho
+  const [draft, setDraft] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      (assessment?.answers ?? []).map((answer) => [answer.competencyQuestionId, answer.competencyQuestionOptionId]),
+    ),
+  )
+  const [pendingSaves, setPendingSaves] = useState(0)
+  const [failedAnswers, setFailedAnswers] = useState<Record<string, string>>({})
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(assessment?.updatedAt ?? null)
+
+  const autosave = useAutosaveCompetencyAnswer({
+    onStart: () => setPendingSaves((count) => count + 1),
+    onSaved: (saved, answer) => {
+      setLastSavedAt(saved.updatedAt)
+      setFailedAnswers((prev) => {
+        const next = { ...prev }
+        delete next[answer.competencyQuestionId]
+        return next
+      })
+    },
+    onFailed: (answer) =>
+      setFailedAnswers((prev) => ({ ...prev, [answer.competencyQuestionId]: answer.competencyQuestionOptionId })),
+    onDone: () => setPendingSaves((count) => count - 1),
+  })
+  const submitMutation = useSubmitCompetencyAssessment()
+  const restartMutation = useRestartCompetencyAssessment()
+
+  const isSubmitted = assessment?.status === AssessmentStatus.Submitted
+  const questions = competencies.flatMap((competency) => competency.questions)
+  const totalQuestions = questions.length
+  const answeredCount = questions.filter((question) => draft[question.id]).length
+  const isComplete = totalQuestions > 0 && answeredCount === totalQuestions
+  const failedCount = Object.keys(failedAnswers).length
+  const isSaving = pendingSaves > 0
+
+  function saveAnswer(answer: CompetencyAnswerDto) {
+    autosave.mutate(answer)
+  }
+
+  function handleChange(questionId: string, optionId: string) {
+    setDraft((prev) => ({ ...prev, [questionId]: optionId }))
+    saveAnswer({ competencyQuestionId: questionId, competencyQuestionOptionId: optionId })
+  }
+
+  function retryFailed() {
+    for (const [questionId, optionId] of Object.entries(failedAnswers)) {
+      saveAnswer({ competencyQuestionId: questionId, competencyQuestionOptionId: optionId })
+    }
+  }
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault()
+    if (!isComplete || isSaving || failedCount > 0) return
+    submitMutation.mutate()
+  }
+
+  function handleRestart() {
+    restartMutation.mutate(undefined, { onSuccess: onRestarted })
+  }
+
+  const submitErrors =
+    submitMutation.error instanceof ApiError
+      ? Object.values(submitMutation.error.errors).flat()
+      : submitMutation.error
+        ? [submitMutation.error.message]
+        : []
+
+  return (
+    <>
       <Flex align="center" gap="12px" mb="24px" position="sticky" top="0" bg="var(--migue-cream)" py="8px" zIndex="1">
         <Progress.Root value={answeredCount} max={totalQuestions} colorPalette="orange" size="sm" flex="1">
           <Progress.Track borderRadius="full">
             <Progress.Range />
           </Progress.Track>
         </Progress.Root>
-        <Text fontSize="13px" fontWeight="600" color="var(--migue-muted)" flexShrink={0}>
+        <Text fontSize="15px" fontWeight="600" color="var(--migue-muted)" flexShrink={0}>
           {answeredCount} de {totalQuestions}
         </Text>
+        {!isSubmitted && (
+          <AutosaveStatus isSaving={isSaving} failedCount={failedCount} lastSavedAt={lastSavedAt} onRetry={retryFailed} />
+        )}
       </Flex>
 
-      {submitted && (
-        <Box bg="green.50" borderWidth="1px" borderColor="green.200" borderRadius="12px" p="14px" mb="20px">
-          <Text fontSize="14px" fontWeight="600" color="green.700">
-            Respostas salvas! Nada de migué — valeu por responder com sinceridade.
+      {isSubmitted && (
+        <Flex
+          align="center"
+          justify="space-between"
+          gap="12px"
+          wrap="wrap"
+          bg="green.50"
+          borderWidth="1px"
+          borderColor="green.200"
+          borderRadius="12px"
+          p="14px"
+          mb="20px"
+        >
+          <Text fontSize="16px" fontWeight="600" color="green.700">
+            Autoavaliação enviada{assessment?.submittedAt && ` em ${formatDate(assessment.submittedAt)}`}! Nada de migué —
+            valeu por responder com sinceridade.
           </Text>
-        </Box>
+          <Flex gap="8px" wrap="wrap">
+            <Button asChild size="sm" colorPalette="green" fontWeight="700">
+              <Link to="/dashboard/behavior/report">Ver meu relatório</Link>
+            </Button>
+            <Button size="sm" variant="outline" colorPalette="green" onClick={handleRestart} loading={restartMutation.isPending}>
+              Nova autoavaliação
+            </Button>
+          </Flex>
+        </Flex>
       )}
 
       <Box as="form" onSubmit={handleSubmit}>
         <Flex direction="column" gap="32px">
-          {competencyMapCategories.map((category) => (
-            <Box key={category.title}>
-              <Heading fontFamily="var(--font-display)" color="var(--migue-ink)" fontSize="18px" mb="14px">
-                {category.title}
+          {competencies.map((competency) => (
+            <Box key={competency.id}>
+              <Heading fontFamily="var(--font-display)" color="var(--migue-ink)" fontSize="20px" mb="14px">
+                {competency.order}. {competency.name}
               </Heading>
 
               <Flex direction="column" gap="16px">
-                {category.questions.map((question) => (
-                  <Box
-                    key={question.id}
-                    bg="white"
-                    borderWidth="1px"
-                    borderColor="blackAlpha.100"
-                    borderRadius="16px"
-                    p="18px"
-                  >
-                    <Text fontSize="12px" fontWeight="700" color="var(--migue-muted)" mb="4px">
-                      {question.id}
-                    </Text>
-                    <Text fontWeight="600" fontSize="14px" color="var(--migue-ink)" mb="12px">
-                      {question.text}
-                    </Text>
+                {[...competency.questions]
+                  .sort((a, b) => a.order - b.order)
+                  .map((question) => {
+                    const options = [...question.options].sort((a, b) => a.order - b.order)
+                    const selectedIndex = options.findIndex((option) => option.id === draft[question.id])
 
-                    <CompetencyOptionList
-                      questionId={question.id}
-                      options={question.options}
-                      value={draft[question.id]}
-                      onChange={(index) => handleChange(question.id, index)}
-                    />
-                  </Box>
-                ))}
+                    return (
+                      <Box
+                        key={question.id}
+                        bg="white"
+                        borderWidth="1px"
+                        borderColor={failedAnswers[question.id] ? 'red.300' : 'blackAlpha.100'}
+                        borderRadius="16px"
+                        p="18px"
+                      >
+                        <Text fontWeight="600" fontSize="16px" color="var(--migue-ink)" mb="12px">
+                          {question.text}
+                        </Text>
+
+                        <CompetencyOptionList
+                          questionId={question.id}
+                          options={options.map((option) => option.text)}
+                          value={selectedIndex >= 0 ? selectedIndex : undefined}
+                          onChange={(index) => handleChange(question.id, options[index].id)}
+                          disabled={isSubmitted}
+                        />
+                      </Box>
+                    )
+                  })}
               </Flex>
             </Box>
           ))}
         </Flex>
 
-        <Flex align="center" gap="12px" mt="28px" mb="8px">
-          <Button type="submit" colorPalette="orange" fontWeight="700" disabled={!isComplete}>
-            Salvar mapa
-          </Button>
-          {!isComplete && (
-            <Text fontSize="13px" color="var(--migue-muted)">
-              Responda todas as {totalQuestions} perguntas pra salvar.
-            </Text>
-          )}
-        </Flex>
+        {!isSubmitted && (
+          <>
+            {submitErrors.map((message) => (
+              <Text key={message} color="red.600" fontSize="16px" mt="16px">
+                {message}
+              </Text>
+            ))}
+
+            <Flex align="center" gap="12px" mt="28px" mb="8px">
+              <Button
+                type="submit"
+                colorPalette="orange"
+                fontWeight="700"
+                disabled={!isComplete || isSaving || failedCount > 0}
+                loading={submitMutation.isPending}
+              >
+                Salvar mapa
+              </Button>
+              {!isComplete && (
+                <Text fontSize="15px" color="var(--migue-muted)">
+                  Responda todas as {totalQuestions} perguntas pra salvar. Suas respostas já ficam guardadas.
+                </Text>
+              )}
+            </Flex>
+          </>
+        )}
       </Box>
-    </Box>
+    </>
+  )
+}
+
+interface AutosaveStatusProps {
+  isSaving: boolean
+  failedCount: number
+  lastSavedAt: string | null
+  onRetry: () => void
+}
+
+function AutosaveStatus({ isSaving, failedCount, lastSavedAt, onRetry }: AutosaveStatusProps) {
+  if (isSaving) {
+    return (
+      <Text fontSize="14px" color="var(--migue-muted)" flexShrink={0}>
+        Salvando...
+      </Text>
+    )
+  }
+
+  if (failedCount > 0) {
+    return (
+      <Flex align="center" gap="6px" flexShrink={0}>
+        <Text fontSize="14px" color="red.600">
+          {failedCount} resposta(s) não salva(s)
+        </Text>
+        <Button size="xs" variant="outline" colorPalette="red" onClick={onRetry}>
+          Tentar de novo
+        </Button>
+      </Flex>
+    )
+  }
+
+  if (!lastSavedAt) return null
+
+  return (
+    <Text fontSize="14px" color="green.700" flexShrink={0}>
+      Salvo às {formatTime(lastSavedAt)}
+    </Text>
   )
 }

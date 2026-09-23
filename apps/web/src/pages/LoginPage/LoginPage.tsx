@@ -3,9 +3,9 @@ import { type FormEvent, useState } from 'react'
 import { login } from '../../api/authApi'
 import { ApiError } from '../../api/client'
 import { setAuth } from '../../store/authStore'
-import './HomePage.css'
+import './LoginPage.css'
 
-export function HomePage() {
+export function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,7 +20,7 @@ export function HomePage() {
     try {
       const result = await login(email, password)
       setAuth(result.token, result.user)
-      navigate({ to: '/dashboard' })
+      navigate({ to: '/' })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('Email ou senha errados — deu migué.')

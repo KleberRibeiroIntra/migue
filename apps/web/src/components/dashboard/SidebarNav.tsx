@@ -1,4 +1,5 @@
 import { Avatar, Badge, Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { useState } from 'react'
@@ -9,6 +10,7 @@ import {
   ProfileIcon,
   ProjectsIcon,
   ReportsIcon,
+  UsersIcon,
 } from '../icons'
 import { authStore, clearAuth } from '../../store/authStore'
 
@@ -19,12 +21,14 @@ const comingSoonNav = [
 
 const profileSubItems = [
   { label: 'Onde eu desenrolo', to: '/dashboard/competency' as const },
-  { label: 'Testar meu desenrolo', to: '/dashboard/competency/form' as const },
+  { label: 'Testar meu desenrolo', to: '/softSkills/form' as const },
   { label: 'Sou assim mesmo?', to: '/dashboard/behavior' as const },
+  { label: 'Onde eu dou migué', to: '/dashboard/behavior/report' as const },
 ]
 
 export function SidebarNav() {
   const user = useStore(authStore, (state) => state.user)
+  const queryClient = useQueryClient()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   return (
@@ -60,7 +64,7 @@ export function SidebarNav() {
           bg="orange.50"
           color="var(--migue-accent)"
         >
-          <Link to="/dashboard">
+          <Link to="/">
             <DashboardIcon />
             Dashboard
           </Link>
@@ -86,6 +90,24 @@ export function SidebarNav() {
             </Badge>
           </Button>
         ))}
+
+        <Box
+          asChild
+          display="flex"
+          alignItems="center"
+          gap="10px"
+          px="12px"
+          py="10px"
+          borderRadius="10px"
+          fontWeight="600"
+          fontSize="15px"
+          color="var(--migue-muted)"
+        >
+          <Link to="/users">
+            <UsersIcon />
+            Usuários
+          </Link>
+        </Box>
 
         <Button
           type="button"
@@ -162,7 +184,13 @@ export function SidebarNav() {
         fontSize="15px"
         color="var(--migue-muted)"
       >
-        <Link to="/" onClick={() => clearAuth()}>
+        <Link
+          to="/login"
+          onClick={() => {
+            clearAuth()
+            queryClient.clear()
+          }}
+        >
           <LogoutIcon />
           Sair
         </Link>
