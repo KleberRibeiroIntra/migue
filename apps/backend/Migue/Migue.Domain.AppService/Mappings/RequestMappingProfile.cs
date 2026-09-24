@@ -12,6 +12,7 @@ public class RequestMappingProfile : Profile
         CreateMap<ActivityRequest, Activity>();
         CreateMap<CompetencyRequest, Competency>();
         CreateMap<ProjectRequest, Project>();
+        CreateMap<ScoreReasonRequest, ScoreReason>();
         CreateMap<SoftSkillRequest, SoftSkill>();
         CreateMap<UserSoftSkillAnswerRequest, UserSoftSkillAnswer>();
         CreateMap<UserRequest, User>()

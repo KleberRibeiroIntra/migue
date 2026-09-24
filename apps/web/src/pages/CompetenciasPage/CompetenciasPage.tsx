@@ -1,4 +1,5 @@
 import { Box, Heading, Text } from '@chakra-ui/react'
+import { SoftSkillsInsights } from './SoftSkillsInsights'
 import { SoftSkillsReport } from './SoftSkillsReport'
 
 export function CompetenciasPage() {
@@ -14,6 +15,10 @@ export function CompetenciasPage() {
       </Box>
 
       <SoftSkillsReport />
+
+      <Box mt="36px">
+        <SoftSkillsInsights />
+      </Box>
     </>
   )
 }

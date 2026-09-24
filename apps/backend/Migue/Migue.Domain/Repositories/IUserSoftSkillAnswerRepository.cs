@@ -6,4 +6,7 @@ public interface IUserSoftSkillAnswerRepository : IRepositoryBase<UserSoftSkillA
 {
     /// <summary>Resposta mais recente do usuário para cada soft skill, com a opção escolhida.</summary>
     Task<List<UserSoftSkillAnswer>> GetLatestByUserAsync(Guid userId);
+
+    /// <summary>Todas as respostas do usuário (histórico completo), com a opção e a soft skill.</summary>
+    Task<List<UserSoftSkillAnswer>> GetAllByUserAsync(Guid userId);
 }

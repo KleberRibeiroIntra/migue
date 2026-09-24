@@ -19,4 +19,5 @@ public class ActivityResponse
     public DateTime? UpdatedAt { get; set; }
     public bool Active { get; set; }
     public ProjectResponse? Project { get; set; }
+    public List<ScoreReasonResponse> ScoreReasons { get; set; } = new();
 }

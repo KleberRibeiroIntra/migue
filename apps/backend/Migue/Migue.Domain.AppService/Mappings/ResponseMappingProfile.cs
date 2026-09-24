@@ -9,6 +9,13 @@ public class ResponseMappingProfile : Profile
     public ResponseMappingProfile()
     {
         CreateMap<Activity, ActivityResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId))
+            .ForMember(dest => dest.ScoreReasons, opt => opt.MapFrom(src => src.ScoreReasons
+                .Where(r => r.ScoreReason != null)
+                .Select(r => r.ScoreReason!)
+                .OrderBy(r => r.Order)));
+
+        CreateMap<ScoreReason, ScoreReasonResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
         CreateMap<CompetencyQuestionOption, CompetencyQuestionOptionResponse>()

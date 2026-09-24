@@ -26,3 +26,35 @@ export function saveMySoftSkillAnswers(answers: SoftSkillAnswerRequest[]) {
     body: JSON.stringify({ answers }),
   })
 }
+
+export interface SoftSkillReportItemDto {
+  softSkillId: string
+  name: string
+  /** Nota de 1 a 5. */
+  value: number
+  label: string
+  previousValue: number | null
+  summary: string
+  tips: string[]
+  /** Nota (0 a 100) da competência equivalente no questionário situacional. */
+  behaviorScore: number | null
+  behaviorGap: string | null
+}
+
+export interface SoftSkillReportDto {
+  answeredAt: string
+  previousAnsweredAt: string | null
+  /** Média de 1 a 5. */
+  average: number
+  verdict: string
+  verdictDetail: string
+  warnings: string[]
+  strengths: SoftSkillReportItemDto[]
+  neutral: SoftSkillReportItemDto[]
+  weaknesses: SoftSkillReportItemDto[]
+}
+
+/** Análise da última autoavaliação; null se o usuário nunca respondeu (a API devolve 204). */
+export async function getMySoftSkillReport() {
+  return (await apiFetch<SoftSkillReportDto | undefined>('/SoftSkill/answers/me/report')) ?? null
+}

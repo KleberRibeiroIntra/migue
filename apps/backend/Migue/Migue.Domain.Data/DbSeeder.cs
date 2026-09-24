@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Migue.Domain.Data.SeedData;
 using Migue.Domain.Entities;
+using Migue.Domain.Enums;
 using Migue.Domain.Security;
 
 namespace Migue.Domain.Data;
@@ -55,6 +56,29 @@ public static class DbSeeder
         (5, "Referência"),
     ];
 
+    private static readonly (string Description, ScoreReasonCategory Category, ScoreReasonSentiment Sentiment, bool RequiresComment)[] ScoreReasons =
+    [
+        ("Demora na liberação de acessos ou permissões", ScoreReasonCategory.Access, ScoreReasonSentiment.Negative, false),
+        ("Excesso de reuniões", ScoreReasonCategory.Meetings, ScoreReasonSentiment.Negative, false),
+        ("Dificuldade de entender a arquitetura", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Negative, false),
+        ("Tecnologia nova ou pouco conhecida", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Negative, false),
+        ("Requisitos pouco claros", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Negative, false),
+        ("Mudança de escopo durante a tarefa", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Negative, false),
+        ("Aguardando outra pessoa ou time", ScoreReasonCategory.Dependencies, ScoreReasonSentiment.Negative, false),
+        ("Problemas de ambiente ou infraestrutura", ScoreReasonCategory.Environment, ScoreReasonSentiment.Negative, false),
+        ("Interrupções e demandas paralelas", ScoreReasonCategory.Interruptions, ScoreReasonSentiment.Negative, false),
+        ("Tarefa maior do que o estimado", ScoreReasonCategory.Planning, ScoreReasonSentiment.Negative, false),
+        ("Outro", ScoreReasonCategory.Other, ScoreReasonSentiment.Negative, true),
+
+        ("Requisitos claros", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Positive, false),
+        ("Boa colaboração do time", ScoreReasonCategory.Collaboration, ScoreReasonSentiment.Positive, false),
+        ("Tempo de foco sem interrupções", ScoreReasonCategory.Focus, ScoreReasonSentiment.Positive, false),
+        ("Domínio da tecnologia", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Positive, false),
+        ("Acessos e ambiente prontos", ScoreReasonCategory.Environment, ScoreReasonSentiment.Positive, false),
+        ("Estimativa acertada", ScoreReasonCategory.Planning, ScoreReasonSentiment.Positive, false),
+        ("Outro", ScoreReasonCategory.Other, ScoreReasonSentiment.Positive, true),
+    ];
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -66,6 +90,30 @@ public static class DbSeeder
         await SeedSoftSkillOptionsAsync(context);
         await SeedCompetencyQuestionsAsync(context);
         await SeedCompetencyOptionScoresAsync(context);
+        await SeedScoreReasonsAsync(context);
+    }
+
+    public static async Task SeedScoreReasonsAsync(MigueDbContext context)
+    {
+        if (await context.Set<ScoreReason>().AnyAsync())
+            return;
+
+        var now = DateTime.UtcNow;
+        var reasons = ScoreReasons.Select((reason, index) => new ScoreReason
+        {
+            NavigationId = Guid.NewGuid(),
+            Description = reason.Description,
+            Category = reason.Category,
+            Sentiment = reason.Sentiment,
+            RequiresComment = reason.RequiresComment,
+            Order = index + 1,
+            CreatedAt = now,
+            CreatedBy = Guid.Empty,
+            Active = true
+        }).ToList();
+
+        await context.Set<ScoreReason>().AddRangeAsync(reasons);
+        await context.SaveChangesAsync();
     }
 
     /// <summary>Aplica o gabarito (peso + sinal) nas alternativas que ainda não têm, casando pelo texto da pergunta e ordem da opção.</summary>

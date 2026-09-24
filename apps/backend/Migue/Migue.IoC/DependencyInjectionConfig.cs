@@ -21,6 +21,7 @@ public static class DependencyInjectionConfig
         services.AddScoped<ICompetencyAssessmentRepository, CompetencyAssessmentRepository>();
         services.AddScoped<ICompetencyRepository, CompetencyRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IScoreReasonRepository, ScoreReasonRepository>();
         services.AddScoped<ISoftSkillRepository, SoftSkillRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserSoftSkillAnswerRepository, UserSoftSkillAnswerRepository>();
@@ -30,7 +31,9 @@ public static class DependencyInjectionConfig
         services.AddScoped<ICompetencyService, CompetencyService>();
         services.AddScoped<ICompetencyReportService, CompetencyReportService>();
         services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<IScoreReasonService, ScoreReasonService>();
         services.AddScoped<ISoftSkillService, SoftSkillService>();
+        services.AddScoped<ISoftSkillReportService, SoftSkillReportService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserSoftSkillAnswerService, UserSoftSkillAnswerService>();
 

@@ -16,4 +16,6 @@ public record Activity : BaseEntity
     public string? SelfScoreComment { get; set; }
 
     public Project? Project { get; set; }
+
+    public ICollection<ActivityScoreReason> ScoreReasons { get; set; } = [];
 }

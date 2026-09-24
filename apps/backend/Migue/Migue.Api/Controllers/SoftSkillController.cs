@@ -15,11 +15,14 @@ public class SoftSkillController : ControllerBase
 {
     private readonly ISoftSkillService _softSkillService;
     private readonly IUserSoftSkillAnswerService _answerService;
+    private readonly ISoftSkillReportService _reportService;
 
-    public SoftSkillController(ISoftSkillService softSkillService, IUserSoftSkillAnswerService answerService)
+    public SoftSkillController(ISoftSkillService softSkillService, IUserSoftSkillAnswerService answerService,
+        ISoftSkillReportService reportService)
     {
         _softSkillService = softSkillService;
         _answerService = answerService;
+        _reportService = reportService;
     }
 
     [HttpGet("paged")]
@@ -73,5 +76,14 @@ public class SoftSkillController : ControllerBase
     {
         var answers = await _answerService.SaveAsync(User.GetUserId(), request);
         return Ok(answers);
+    }
+
+    /// <summary>Análise da última autoavaliação: pontos fortes, fracos, dicas e evolução. 204 se o usuário nunca respondeu.</summary>
+    [Authorize]
+    [HttpGet("answers/me/report")]
+    public async Task<ActionResult<SoftSkillReportResponse>> GetMyReport()
+    {
+        var report = await _reportService.GetMyReportAsync(User.GetUserId());
+        return report is null ? NoContent() : Ok(report);
     }
 }
