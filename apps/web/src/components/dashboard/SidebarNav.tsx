@@ -5,6 +5,7 @@ import { useStore } from '@tanstack/react-store'
 import { useState } from 'react'
 import {
   ChevronDownIcon,
+  DailyLogIcon,
   DashboardIcon,
   LogoutIcon,
   ProfileIcon,
@@ -14,10 +15,7 @@ import {
 } from '../icons'
 import { authStore, clearAuth } from '../../store/authStore'
 
-const comingSoonNav = [
-  { label: 'Projetos', icon: ProjectsIcon },
-  { label: 'Relatórios', icon: ReportsIcon },
-]
+const comingSoonNav = [{ label: 'Relatórios', icon: ReportsIcon }]
 
 const profileSubItems = [
   { label: 'Onde eu desenrolo', to: '/dashboard/competency' as const },
@@ -67,6 +65,42 @@ export function SidebarNav() {
           <Link to="/">
             <DashboardIcon />
             Dashboard
+          </Link>
+        </Box>
+
+        <Box
+          asChild
+          display="flex"
+          alignItems="center"
+          gap="10px"
+          px="12px"
+          py="10px"
+          borderRadius="10px"
+          fontWeight="600"
+          fontSize="15px"
+          color="var(--migue-muted)"
+        >
+          <Link to="/daily">
+            <DailyLogIcon />
+            Registro do dia
+          </Link>
+        </Box>
+
+        <Box
+          asChild
+          display="flex"
+          alignItems="center"
+          gap="10px"
+          px="12px"
+          py="10px"
+          borderRadius="10px"
+          fontWeight="600"
+          fontSize="15px"
+          color="var(--migue-muted)"
+        >
+          <Link to="/projects">
+            <ProjectsIcon />
+            Projetos
           </Link>
         </Box>
 

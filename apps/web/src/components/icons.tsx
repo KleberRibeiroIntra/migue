@@ -27,6 +27,15 @@ export function DashboardIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function DailyLogIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13" />
+    </IconBase>
+  )
+}
+
 export function ProjectsIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

@@ -13,4 +13,7 @@ public class ProjectService : ServiceBase<Project, ProjectRequest, ProjectRespon
         : base(repository, mapper, validator)
     {
     }
+
+    public bool HasActivities(Guid navigationId)
+        => Repository.Query().Any(p => p.NavigationId == navigationId && p.Activities.Any());
 }
