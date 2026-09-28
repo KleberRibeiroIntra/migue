@@ -14,8 +14,7 @@ dist/
 # Expo
 .expo/
 
-# SQLite
-*.db
+# SQLite: o migue.db é versionado; só os arquivos temporários do modo WAL ficam de fora
 *.db-shm
 *.db-wal
 
