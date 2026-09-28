@@ -8,6 +8,7 @@ import { BehaviorFormPage } from './pages/BehaviorFormPage/BehaviorFormPage'
 import { BehaviorReportPage } from './pages/BehaviorReportPage/BehaviorReportPage'
 import { DailyLogPage } from './pages/DailyLogPage/DailyLogPage'
 import { ProjectsPage } from './pages/ProjectsPage/ProjectsPage'
+import { ScoreReasonCategoriesPage } from './pages/ScoreReasonCategoriesPage/ScoreReasonCategoriesPage'
 import { UsersPage } from './pages/UsersPage/UsersPage'
 import { UserFormPage } from './pages/UserFormPage/UserFormPage'
 import { authStore } from './store/authStore'
@@ -96,6 +97,12 @@ const projectsRoute = createRoute({
   component: ProjectsPage,
 })
 
+const scoreReasonCategoriesRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/score-reason-categories',
+  component: ScoreReasonCategoriesPage,
+})
+
 const usersRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: '/users',
@@ -127,6 +134,7 @@ const routeTree = rootRoute.addChildren([
     competenciasFormRoute,
     dailyLogRoute,
     projectsRoute,
+    scoreReasonCategoriesRoute,
     usersRoute,
     userCreateRoute,
     userEditRoute,

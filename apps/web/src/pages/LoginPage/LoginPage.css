@@ -200,6 +200,11 @@
   box-shadow: 8px 8px 0 var(--migue-ink);
 }
 
+.home__cta:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--migue-ink);
+}
+
 .home__cta:disabled {
   cursor: not-allowed;
   opacity: 0.6;

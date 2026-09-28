@@ -19,7 +19,8 @@ export function useScoreReasons() {
 export function useProjects() {
   return useQuery({
     queryKey: ['projects', 'all'],
-    queryFn: () => projectApi.getPaged({ pageNumber: 1, pageSize: 100 }),
+    // paginação da API começa em 0
+    queryFn: () => projectApi.getPaged({ pageNumber: 0, pageSize: 100 }),
     select: (page) => page.result.filter((project) => project.active),
   })
 }

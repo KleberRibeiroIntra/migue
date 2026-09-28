@@ -13,7 +13,7 @@ interface ScaleSelectorProps {
 
 export function ScaleSelector({ value, onChange, options }: ScaleSelectorProps) {
   return (
-    <Flex gap="6px" wrap="wrap">
+    <Flex gap="10px" wrap="wrap" pb="4px">
       {options.map((option) => {
         const selected = value === option.value
 
@@ -22,12 +22,11 @@ export function ScaleSelector({ value, onChange, options }: ScaleSelectorProps) 
             key={option.value}
             type="button"
             size="md"
-            variant={selected ? 'solid' : 'outline'}
-            colorPalette={selected ? 'orange' : 'gray'}
-            borderColor={selected ? undefined : 'blackAlpha.200'}
-            color={selected ? undefined : 'var(--migue-muted)'}
-            fontWeight="600"
+            borderRadius="12px"
             fontSize="15px"
+            variant={selected ? 'solid' : 'outline'}
+            colorPalette="orange"
+            color={selected ? undefined : 'var(--migue-ink)'}
             onClick={() => onChange(option.value)}
             aria-pressed={selected}
           >

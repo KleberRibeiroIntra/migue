@@ -1,9 +1,10 @@
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { RouterProvider } from '@tanstack/react-router'
 import { ApiError, setUnauthorizedHandler } from './api/client'
 import { router } from './router'
+import { system } from './theme'
 import { authStore, clearAuth } from './store/authStore'
 
 const MAX_QUERY_RETRIES = 3
@@ -30,7 +31,7 @@ setUnauthorizedHandler(() => {
 
 function App() {
   return (
-    <ChakraProvider value={defaultSystem}>
+    <ChakraProvider value={system}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
         <TanStackDevtools  />

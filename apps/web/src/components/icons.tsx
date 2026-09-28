@@ -27,11 +27,29 @@ export function DashboardIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase width="18" height="18" {...props}>
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M8 2v4M16 2v4M3 10h18" />
+    </IconBase>
+  )
+}
+
 export function DailyLogIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
       <rect x="3" y="4" width="18" height="17" rx="2" />
       <path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 13" />
+    </IconBase>
+  )
+}
+
+export function TagIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" />
+      <circle cx="8" cy="8" r="1.5" />
     </IconBase>
   )
 }

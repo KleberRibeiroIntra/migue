@@ -1,6 +1,22 @@
-import { Box, Button, Field, Flex, Heading, Input, NativeSelect, Text, Textarea } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  DatePicker,
+  Field,
+  Flex,
+  Heading,
+  Input,
+  NumberInput,
+  Portal,
+  Select,
+  Text,
+  Textarea,
+  chakra,
+  createListCollection,
+  parseDate,
+} from '@chakra-ui/react'
 import { useStore } from '@tanstack/react-store'
-import { type FormEvent, type ReactNode, useState } from 'react'
+import { type FormEvent, type ReactNode, useMemo, useState } from 'react'
 import {
   ActivityStatus,
   POSITIVE_SCORE_THRESHOLD,
@@ -8,18 +24,20 @@ import {
 } from '../../api/activityApi'
 import { ApiError } from '../../api/client'
 import { useProjects, useRegisterActivity, useScoreReasons } from '../../hooks/useDailyLog'
+import { CalendarIcon } from '../../components/icons'
+import { ACTIVITY_STATUS } from '../../data/activityStatus'
 import { authStore } from '../../store/authStore'
 import { ScaleSelector } from '../CompetenciasFormPage/ScaleSelector'
 import { ReasonPicker } from './ReasonPicker'
 import { StarRating } from './StarRating'
 
 const STATUS_OPTIONS = [
-  { value: ActivityStatus.Completed, label: 'Entreguei' },
-  { value: ActivityStatus.InProgress, label: 'Tô fazendo' },
-  { value: ActivityStatus.Blocked, label: 'Travou' },
-  { value: ActivityStatus.Planned, label: 'Nem comecei' },
-  { value: ActivityStatus.Cancelled, label: 'Cancelaram' },
-]
+  ActivityStatus.Completed,
+  ActivityStatus.InProgress,
+  ActivityStatus.Blocked,
+  ActivityStatus.Planned,
+  ActivityStatus.Cancelled,
+].map((value) => ({ value, label: ACTIVITY_STATUS[value].label }))
 
 const TITLE_MAX = 200
 const TEXT_MAX = 2000
@@ -37,7 +55,7 @@ function toIsoDate(date: string) {
 
 interface Draft {
   title: string
-  projectId: string
+  projectIds: string[]
   status: ActivityStatus
   date: string
   hours: string
@@ -47,10 +65,10 @@ interface Draft {
   comment: string
 }
 
-function emptyDraft(keep?: Pick<Draft, 'projectId' | 'date'>): Draft {
+function emptyDraft(keep?: Pick<Draft, 'projectIds' | 'date'>): Draft {
   return {
     title: '',
-    projectId: keep?.projectId ?? '',
+    projectIds: keep?.projectIds ?? [],
     status: ActivityStatus.Completed,
     date: keep?.date ?? today(),
     hours: '',
@@ -76,6 +94,15 @@ export function DailyLogPage() {
 
   const sentiment = draft.score >= POSITIVE_SCORE_THRESHOLD ? ScoreReasonSentiment.Positive : ScoreReasonSentiment.Negative
   const reasons = (reasonsQuery.data ?? []).filter((reason) => reason.sentiment === sentiment)
+  const projectCollection = useMemo(
+    () =>
+      createListCollection({
+        items: projectsQuery.data ?? [],
+        itemToValue: (project) => project.id,
+        itemToString: (project) => project.name,
+      }),
+    [projectsQuery.data],
+  )
   const commentRequired = reasons.some((reason) => reason.requiresComment && draft.reasonIds.includes(reason.id))
 
   function update<K extends keyof Draft>(key: K, value: Draft[K]) {
@@ -121,7 +148,7 @@ export function DailyLogPage() {
       {
         activity: {
           userId: user.id,
-          projectId: draft.projectId || null,
+          projectIds: draft.projectIds,
           title: draft.title.trim(),
           description: draft.description.trim() || null,
           status: draft.status,
@@ -139,7 +166,7 @@ export function DailyLogPage() {
         onSuccess: (activity) => {
           setLastSaved(activity.title)
           setCreatedId(null)
-          setDraft(emptyDraft({ projectId: draft.projectId, date: draft.date }))
+          setDraft(emptyDraft({ projectIds: draft.projectIds, date: draft.date }))
         },
       },
     )
@@ -157,7 +184,7 @@ export function DailyLogPage() {
         Conta aí o que rolou hoje. Anotando agora, ninguém vem dizer depois que você deu migué.
       </Text>
 
-      <form onSubmit={handleSubmit} noValidate>
+      <chakra.form onSubmit={handleSubmit} noValidate>
         <Flex direction="column" gap="16px">
           <Section title="O que você fez?">
             <Field.Root invalid={!!errors.title} required>
@@ -183,37 +210,91 @@ export function DailyLogPage() {
 
             <Flex gap="12px" wrap="wrap">
               <Field.Root flex="2" minW="200px">
-                <Field.Label>Projeto</Field.Label>
-                <NativeSelect.Root disabled={projectsQuery.isLoading}>
-                  <NativeSelect.Field
-                    value={draft.projectId}
-                    onChange={(event) => update('projectId', event.target.value)}
-                  >
-                    <option value="">Sem projeto</option>
-                    {projectsQuery.data?.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
+                <Field.Label>Projetos</Field.Label>
+                <Select.Root
+                  collection={projectCollection}
+                  multiple
+                  closeOnSelect={false}
+                  value={draft.projectIds}
+                  onValueChange={(details) => update('projectIds', details.value)}
+                  disabled={projectsQuery.isLoading}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Sem projeto" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.ClearTrigger />
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {projectCollection.items.map((project) => (
+                          <Select.Item key={project.id} item={project}>
+                            {project.name}
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
               </Field.Root>
 
               <Field.Root flex="1" minW="150px" invalid={!!errors.date}>
                 <Field.Label>Dia</Field.Label>
-                <Input type="date" value={draft.date} max={today()} onChange={(event) => update('date', event.target.value)} />
+                <DatePicker.Root
+                  locale="pt-BR"
+                  value={draft.date ? [parseDate(draft.date)] : []}
+                  max={parseDate(today())}
+                  onValueChange={(details) => update('date', details.value[0]?.toString() ?? '')}
+                >
+                  <DatePicker.Control>
+                    <DatePicker.Input />
+                    <DatePicker.IndicatorGroup>
+                      <DatePicker.Trigger>
+                        <CalendarIcon />
+                      </DatePicker.Trigger>
+                    </DatePicker.IndicatorGroup>
+                  </DatePicker.Control>
+                  <Portal>
+                    <DatePicker.Positioner>
+                      <DatePicker.Content>
+                        <DatePicker.View view="day">
+                          <DatePicker.Header />
+                          <DatePicker.DayTable />
+                        </DatePicker.View>
+                        <DatePicker.View view="month">
+                          <DatePicker.Header />
+                          <DatePicker.MonthTable />
+                        </DatePicker.View>
+                        <DatePicker.View view="year">
+                          <DatePicker.Header />
+                          <DatePicker.YearTable />
+                        </DatePicker.View>
+                      </DatePicker.Content>
+                    </DatePicker.Positioner>
+                  </Portal>
+                </DatePicker.Root>
                 <Field.ErrorText>{errors.date}</Field.ErrorText>
               </Field.Root>
 
               <Field.Root flex="1" minW="150px" invalid={!!errors.hours}>
                 <Field.Label>Quantas horas?</Field.Label>
-                <Input
-                  inputMode="decimal"
+                <NumberInput.Root
+                  locale="pt-BR"
                   value={draft.hours}
-                  placeholder="Ex: 1,5"
-                  onChange={(event) => update('hours', event.target.value)}
-                />
+                  min={0}
+                  max={24}
+                  step={0.5}
+                  onValueChange={(details) => update('hours', details.value)}
+                >
+                  <NumberInput.Control />
+                  <NumberInput.Input placeholder="Ex: 1,5" />
+                </NumberInput.Root>
                 <Field.ErrorText>{errors.hours}</Field.ErrorText>
               </Field.Root>
             </Flex>
@@ -285,10 +366,19 @@ export function DailyLogPage() {
           </Text>
         )}
 
-        <Button type="submit" colorPalette="orange" fontWeight="700" mt="24px" loading={registerMutation.isPending}>
+        <Button
+          type="submit"
+          size="lg"
+          px="32px"
+          borderRadius="14px"
+          fontSize="17px"
+          mt="24px"
+          loading={registerMutation.isPending}
+          colorPalette="orange"
+        >
           Registrar
         </Button>
-      </form>
+      </chakra.form>
     </Box>
   )
 }

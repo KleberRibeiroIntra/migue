@@ -25,7 +25,8 @@ export const POSITIVE_SCORE_THRESHOLD = 4
 export interface ScoreReasonDto {
   id: string
   description: string
-  category: number
+  categoryId: string
+  categoryName: string
   sentiment: ScoreReasonSentiment
   order: number
   /** Quando escolhida, o comentário vira obrigatório (ex: "Outro"). */
@@ -35,7 +36,6 @@ export interface ScoreReasonDto {
 export interface ActivityDto {
   id: string
   userId: string
-  projectId: string | null
   title: string
   description: string | null
   status: ActivityStatus
@@ -45,13 +45,13 @@ export interface ActivityDto {
   selfScore: number | null
   selfScoreComment: string | null
   createdAt: string
-  project: ProjectDto | null
+  projects: ProjectDto[]
   scoreReasons: ScoreReasonDto[]
 }
 
 export interface ActivityRequest {
   userId: string
-  projectId: string | null
+  projectIds: string[]
   title: string
   description: string | null
   status: ActivityStatus
@@ -75,4 +75,10 @@ export function scoreActivity(id: string, request: ScoreActivityRequest) {
 /** Catálogo de justificativas na ordem de exibição. */
 export function getScoreReasons() {
   return apiFetch<ScoreReasonDto[]>('/ScoreReason')
+}
+
+/** Atividades do usuário logado cujo dia cai em [from, to), mais recentes primeiro. */
+export function getMyActivities(from: Date, to: Date) {
+  const params = new URLSearchParams({ from: from.toISOString(), to: to.toISOString() })
+  return apiFetch<ActivityDto[]>(`/Activity/me?${params}`)
 }

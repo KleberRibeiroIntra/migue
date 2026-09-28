@@ -9,7 +9,7 @@ interface ReasonPickerProps {
 
 export function ReasonPicker({ reasons, selectedIds, onToggle }: ReasonPickerProps) {
   return (
-    <Flex gap="6px" wrap="wrap">
+    <Flex gap="10px" wrap="wrap" pb="4px">
       {reasons.map((reason) => {
         const selected = selectedIds.includes(reason.id)
 
@@ -19,12 +19,10 @@ export function ReasonPicker({ reasons, selectedIds, onToggle }: ReasonPickerPro
             type="button"
             size="sm"
             borderRadius="full"
-            variant={selected ? 'solid' : 'outline'}
-            colorPalette={selected ? 'orange' : 'gray'}
-            borderColor={selected ? undefined : 'blackAlpha.200'}
-            color={selected ? undefined : 'var(--migue-muted)'}
-            fontWeight="600"
             fontSize="14px"
+            variant={selected ? 'solid' : 'outline'}
+            colorPalette="orange"
+            color={selected ? undefined : 'var(--migue-ink)'}
             onClick={() => onToggle(reason.id)}
             aria-pressed={selected}
           >
