@@ -5,7 +5,7 @@ namespace Migue.Domain.AppService.Dtos.Requests;
 public class ActivityRequest
 {
     public Guid UserId { get; set; }
-    public Guid? ProjectId { get; set; }
+    public List<Guid> ProjectIds { get; set; } = new();
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ActivityStatus Status { get; set; }

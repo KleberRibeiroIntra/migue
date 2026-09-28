@@ -14,15 +14,33 @@ public class ActivityRepository : RepositoryBase<Activity>, IActivityRepository
 
     public override Task<Activity?> GetByIdAsync(Guid id) =>
         DbSet
-            .Include(a => a.Project)
+            .Include(a => a.Projects)
+            .ThenInclude(p => p.Project)
             .Include(a => a.ScoreReasons)
             .ThenInclude(r => r.ScoreReason)
+            .ThenInclude(r => r!.Category)
             .FirstOrDefaultAsync(a => a.NavigationId == id && a.Active);
+
+    public Task<List<Activity>> GetByUserAsync(Guid userId, DateTime from, DateTime to) =>
+        DbSet
+            .Where(a => a.Active && a.UserId == userId)
+            .Where(a => (a.StartedAt ?? a.CreatedAt) >= from && (a.StartedAt ?? a.CreatedAt) < to)
+            .Include(a => a.Projects)
+            .ThenInclude(p => p.Project)
+            .Include(a => a.ScoreReasons)
+            .ThenInclude(r => r.ScoreReason)
+            .ThenInclude(r => r!.Category)
+            .OrderByDescending(a => a.StartedAt ?? a.CreatedAt)
+            .ThenByDescending(a => a.Id)
+            .AsSplitQuery()
+            .ToListAsync();
 
     public override Task<DynamicQueryResult<Activity>> GetPagedAsync(DynamicQuery query) =>
         DbSet.Where(a => a.Active)
-            .Include(a => a.Project)
+            .Include(a => a.Projects)
+            .ThenInclude(p => p.Project)
             .Include(a => a.ScoreReasons)
             .ThenInclude(r => r.ScoreReason)
+            .ThenInclude(r => r!.Category)
             .ToPagedAsync(query);
 }

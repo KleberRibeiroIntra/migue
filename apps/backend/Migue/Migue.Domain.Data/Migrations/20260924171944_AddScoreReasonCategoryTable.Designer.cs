@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Migue.Domain.Data;
 
@@ -10,9 +11,11 @@ using Migue.Domain.Data;
 namespace Migue.Domain.Data.Migrations
 {
     [DbContext(typeof(MigueDbContext))]
-    partial class MigueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924171944_AddScoreReasonCategoryTable")]
+    partial class AddScoreReasonCategoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -42,6 +45,9 @@ namespace Migue.Domain.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("SelfScore")
@@ -74,50 +80,9 @@ namespace Migue.Domain.Data.Migrations
                     b.HasIndex("NavigationId")
                         .IsUnique();
 
-                    b.ToTable("Activity");
-                });
-
-            modelBuilder.Entity("Migue.Domain.Entities.ActivityProject", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("ActivityId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("NavigationId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NavigationId")
-                        .IsUnique();
-
                     b.HasIndex("ProjectId");
 
-                    b.HasIndex("ActivityId", "ProjectId")
-                        .IsUnique();
-
-                    b.ToTable("ActivityProject");
+                    b.ToTable("Activity");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.ActivityScoreReason", b =>
@@ -710,23 +675,13 @@ namespace Migue.Domain.Data.Migrations
                     b.ToTable("UserSoftSkillAnswer");
                 });
 
-            modelBuilder.Entity("Migue.Domain.Entities.ActivityProject", b =>
+            modelBuilder.Entity("Migue.Domain.Entities.Activity", b =>
                 {
-                    b.HasOne("Migue.Domain.Entities.Activity", "Activity")
-                        .WithMany("Projects")
-                        .HasForeignKey("ActivityId")
-                        .HasPrincipalKey("NavigationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Migue.Domain.Entities.Project", "Project")
                         .WithMany("Activities")
                         .HasForeignKey("ProjectId")
                         .HasPrincipalKey("NavigationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Activity");
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Project");
                 });
@@ -883,8 +838,6 @@ namespace Migue.Domain.Data.Migrations
 
             modelBuilder.Entity("Migue.Domain.Entities.Activity", b =>
                 {
-                    b.Navigation("Projects");
-
                     b.Navigation("ScoreReasons");
                 });
 

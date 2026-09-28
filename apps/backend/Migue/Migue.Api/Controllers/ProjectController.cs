@@ -49,7 +49,7 @@ public class ProjectController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (_projectService.HasActivities(id))
+        if (await _projectService.HasActivitiesAsync(id))
             return Problem(title: "Esse projeto já tem atividade registrada, não dá pra excluir.",
                 statusCode: StatusCodes.Status409Conflict);
 

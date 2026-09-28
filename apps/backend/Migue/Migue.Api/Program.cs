@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.Sqlite;
 using Microsoft.IdentityModel.Tokens;
 using Migue.Api.Middlewares;
 using Migue.Api.Security;
@@ -27,8 +28,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? "Data Source=migue.db";
+var connectionString = ResolveSqlitePath(
+    builder.Configuration.GetConnectionString("Default") ?? "Data Source=Database/migue.db",
+    builder.Environment.ContentRootPath);
 builder.Services.AddDependencyInjectionConfiguration(connectionString);
 
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -75,3 +77,18 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Caminho relativo do banco resolve a partir da pasta do projeto (não de onde o comando rodou), e a pasta é criada
+// se não existir: o SQLite cria o arquivo, mas não o diretório.
+static string ResolveSqlitePath(string connectionString, string contentRoot)
+{
+    var sqlite = new SqliteConnectionStringBuilder(connectionString);
+    if (sqlite.DataSource != ":memory:" && !Path.IsPathRooted(sqlite.DataSource))
+        sqlite.DataSource = Path.Combine(contentRoot, sqlite.DataSource);
+
+    var directory = Path.GetDirectoryName(sqlite.DataSource);
+    if (!string.IsNullOrEmpty(directory))
+        Directory.CreateDirectory(directory);
+
+    return sqlite.ToString();
+}

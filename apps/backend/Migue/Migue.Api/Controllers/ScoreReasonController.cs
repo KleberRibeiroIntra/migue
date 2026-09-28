@@ -11,10 +11,12 @@ namespace Migue.Api.Controllers;
 public class ScoreReasonController : ControllerBase
 {
     private readonly IScoreReasonService _scoreReasonService;
+    private readonly IScoreReasonCategoryService _categoryService;
 
-    public ScoreReasonController(IScoreReasonService scoreReasonService)
+    public ScoreReasonController(IScoreReasonService scoreReasonService, IScoreReasonCategoryService categoryService)
     {
         _scoreReasonService = scoreReasonService;
+        _categoryService = categoryService;
     }
 
     /// <summary>Justificativas na ordem de exibição. Filtre por sentimento para mostrar só as que combinam com a nota.</summary>
@@ -35,6 +37,9 @@ public class ScoreReasonController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ScoreReasonResponse>> Create(ScoreReasonRequest request)
     {
+        if (await _categoryService.GetByIdAsync(request.CategoryId) is null)
+            return CategoryNotFound();
+
         var created = await _scoreReasonService.CreateAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -42,6 +47,9 @@ public class ScoreReasonController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ScoreReasonResponse>> Update(Guid id, ScoreReasonRequest request)
     {
+        if (await _categoryService.GetByIdAsync(request.CategoryId) is null)
+            return CategoryNotFound();
+
         var updated = await _scoreReasonService.UpdateAsync(id, request);
         return updated is null ? NotFound() : Ok(updated);
     }
@@ -52,5 +60,11 @@ public class ScoreReasonController : ControllerBase
     {
         var deactivated = await _scoreReasonService.UpdateAsync(id, reason => reason.Active = false);
         return deactivated is null ? NotFound() : NoContent();
+    }
+
+    private ActionResult CategoryNotFound()
+    {
+        ModelState.AddModelError(nameof(ScoreReasonRequest.CategoryId), "Categoria não encontrada.");
+        return ValidationProblem(ModelState);
     }
 }

@@ -10,12 +10,17 @@ public class ResponseMappingProfile : Profile
     {
         CreateMap<Activity, ActivityResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId))
+            .ForMember(dest => dest.Projects, opt => opt.MapFrom(src => src.Projects
+                .Where(p => p.Project != null)
+                .Select(p => p.Project!)
+                .OrderBy(p => p.Name)))
             .ForMember(dest => dest.ScoreReasons, opt => opt.MapFrom(src => src.ScoreReasons
                 .Where(r => r.ScoreReason != null)
                 .Select(r => r.ScoreReason!)
                 .OrderBy(r => r.Order)));
 
         CreateMap<ScoreReason, ScoreReasonResponse>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
         CreateMap<CompetencyQuestionOption, CompetencyQuestionOptionResponse>()
@@ -25,6 +30,9 @@ public class ResponseMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
         CreateMap<Competency, CompetencyResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
+
+        CreateMap<ScoreReasonCategory, ScoreReasonCategoryResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
         CreateMap<Project, ProjectResponse>()

@@ -72,7 +72,7 @@ Sobe em `https://localhost:7115` (e `http://localhost:5271`). Swagger em `https:
 
 Em Development, o **seeder** roda na subida da API e cria as competências, as perguntas, o gabarito do questionário, as soft skills e um usuário de desenvolvimento (e-mail e senha em `Migue.Domain.Data/DbSeeder.cs`).
 
-> O banco é um `migue.db` (SQLite) dentro de `Migue.Api/`. Quer começar do zero? Para a API, apaga o arquivo e roda o `database update` de novo.
+> O banco é um `migue.db` (SQLite) dentro de `Migue.Api/Database/`. A pasta é criada sozinha se não existir. Quer começar do zero? Para a API, apaga o arquivo e roda o `database update` de novo.
 
 ### 2. Web
 
@@ -111,7 +111,7 @@ dotnet ef database update --project Migue.Domain.Data --startup-project Migue.Ap
 dotnet ef migrations add NomeDaMigration --project Migue.Domain.Data --startup-project Migue.Api --configuration Release
 ```
 
-E rode o `database update` **de dentro de `Migue.Api/`** (com `--project ../Migue.Domain.Data --startup-project .`), porque o caminho do banco é relativo (`Data Source=migue.db`). Senão ele cria um banco novo no lugar errado e você fica sem entender por que nada mudou.
+O caminho do banco (`Data Source=Database/migue.db`) é relativo à pasta do `Migue.Api`, não de onde você rodou o comando. Então dá pra rodar o `dotnet ef` de qualquer lugar, que ele sempre cai no mesmo banco.
 
 ---
 

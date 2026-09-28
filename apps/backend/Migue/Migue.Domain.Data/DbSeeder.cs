@@ -56,27 +56,27 @@ public static class DbSeeder
         (5, "Referência"),
     ];
 
-    private static readonly (string Description, ScoreReasonCategory Category, ScoreReasonSentiment Sentiment, bool RequiresComment)[] ScoreReasons =
+    private static readonly (string Description, string Category, ScoreReasonSentiment Sentiment, bool RequiresComment)[] ScoreReasons =
     [
-        ("Demora na liberação de acessos ou permissões", ScoreReasonCategory.Access, ScoreReasonSentiment.Negative, false),
-        ("Excesso de reuniões", ScoreReasonCategory.Meetings, ScoreReasonSentiment.Negative, false),
-        ("Dificuldade de entender a arquitetura", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Negative, false),
-        ("Tecnologia nova ou pouco conhecida", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Negative, false),
-        ("Requisitos pouco claros", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Negative, false),
-        ("Mudança de escopo durante a tarefa", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Negative, false),
-        ("Aguardando outra pessoa ou time", ScoreReasonCategory.Dependencies, ScoreReasonSentiment.Negative, false),
-        ("Problemas de ambiente ou infraestrutura", ScoreReasonCategory.Environment, ScoreReasonSentiment.Negative, false),
-        ("Interrupções e demandas paralelas", ScoreReasonCategory.Interruptions, ScoreReasonSentiment.Negative, false),
-        ("Tarefa maior do que o estimado", ScoreReasonCategory.Planning, ScoreReasonSentiment.Negative, false),
-        ("Outro", ScoreReasonCategory.Other, ScoreReasonSentiment.Negative, true),
+        ("Demora na liberação de acessos ou permissões", "Acessos", ScoreReasonSentiment.Negative, false),
+        ("Excesso de reuniões", "Reuniões", ScoreReasonSentiment.Negative, false),
+        ("Dificuldade de entender a arquitetura", "Conhecimento técnico", ScoreReasonSentiment.Negative, false),
+        ("Tecnologia nova ou pouco conhecida", "Conhecimento técnico", ScoreReasonSentiment.Negative, false),
+        ("Requisitos pouco claros", "Requisitos", ScoreReasonSentiment.Negative, false),
+        ("Mudança de escopo durante a tarefa", "Requisitos", ScoreReasonSentiment.Negative, false),
+        ("Aguardando outra pessoa ou time", "Dependências", ScoreReasonSentiment.Negative, false),
+        ("Problemas de ambiente ou infraestrutura", "Ambiente", ScoreReasonSentiment.Negative, false),
+        ("Interrupções e demandas paralelas", "Interrupções", ScoreReasonSentiment.Negative, false),
+        ("Tarefa maior do que o estimado", "Planejamento", ScoreReasonSentiment.Negative, false),
+        ("Outro", "Outros", ScoreReasonSentiment.Negative, true),
 
-        ("Requisitos claros", ScoreReasonCategory.Requirements, ScoreReasonSentiment.Positive, false),
-        ("Boa colaboração do time", ScoreReasonCategory.Collaboration, ScoreReasonSentiment.Positive, false),
-        ("Tempo de foco sem interrupções", ScoreReasonCategory.Focus, ScoreReasonSentiment.Positive, false),
-        ("Domínio da tecnologia", ScoreReasonCategory.TechnicalKnowledge, ScoreReasonSentiment.Positive, false),
-        ("Acessos e ambiente prontos", ScoreReasonCategory.Environment, ScoreReasonSentiment.Positive, false),
-        ("Estimativa acertada", ScoreReasonCategory.Planning, ScoreReasonSentiment.Positive, false),
-        ("Outro", ScoreReasonCategory.Other, ScoreReasonSentiment.Positive, true),
+        ("Requisitos claros", "Requisitos", ScoreReasonSentiment.Positive, false),
+        ("Boa colaboração do time", "Colaboração", ScoreReasonSentiment.Positive, false),
+        ("Tempo de foco sem interrupções", "Foco", ScoreReasonSentiment.Positive, false),
+        ("Domínio da tecnologia", "Conhecimento técnico", ScoreReasonSentiment.Positive, false),
+        ("Acessos e ambiente prontos", "Ambiente", ScoreReasonSentiment.Positive, false),
+        ("Estimativa acertada", "Planejamento", ScoreReasonSentiment.Positive, false),
+        ("Outro", "Outros", ScoreReasonSentiment.Positive, true),
     ];
 
     public static async Task SeedAsync(IServiceProvider services)
@@ -90,7 +90,29 @@ public static class DbSeeder
         await SeedSoftSkillOptionsAsync(context);
         await SeedCompetencyQuestionsAsync(context);
         await SeedCompetencyOptionScoresAsync(context);
+        await SeedScoreReasonCategoriesAsync(context);
         await SeedScoreReasonsAsync(context);
+    }
+
+    public static async Task SeedScoreReasonCategoriesAsync(MigueDbContext context)
+    {
+        if (await context.Set<ScoreReasonCategory>().AnyAsync())
+            return;
+
+        var now = DateTime.UtcNow;
+        var categories = ScoreReasonCategorySeedData.Categories.Select((category, index) => new ScoreReasonCategory
+        {
+            NavigationId = category.Id,
+            Name = category.Name,
+            Description = category.Description,
+            Order = index + 1,
+            CreatedAt = now,
+            CreatedBy = Guid.Empty,
+            Active = true
+        }).ToList();
+
+        await context.Set<ScoreReasonCategory>().AddRangeAsync(categories);
+        await context.SaveChangesAsync();
     }
 
     public static async Task SeedScoreReasonsAsync(MigueDbContext context)
@@ -103,7 +125,7 @@ public static class DbSeeder
         {
             NavigationId = Guid.NewGuid(),
             Description = reason.Description,
-            Category = reason.Category,
+            CategoryId = ScoreReasonCategorySeedData.IdOf(reason.Category),
             Sentiment = reason.Sentiment,
             RequiresComment = reason.RequiresComment,
             Order = index + 1,

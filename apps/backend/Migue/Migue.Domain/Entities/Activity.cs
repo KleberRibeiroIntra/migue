@@ -5,7 +5,6 @@ namespace Migue.Domain.Entities;
 public record Activity : BaseEntity
 {
     public Guid UserId { get; set; }
-    public Guid? ProjectId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ActivityStatus Status { get; set; }
@@ -15,7 +14,7 @@ public record Activity : BaseEntity
     public int? SelfScore { get; set; }
     public string? SelfScoreComment { get; set; }
 
-    public Project? Project { get; set; }
+    public ICollection<ActivityProject> Projects { get; set; } = [];
 
     public ICollection<ActivityScoreReason> ScoreReasons { get; set; } = [];
 }

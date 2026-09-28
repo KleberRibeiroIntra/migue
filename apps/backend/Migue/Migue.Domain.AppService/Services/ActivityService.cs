@@ -15,12 +15,91 @@ public class ActivityService : ServiceBase<Activity, ActivityRequest, ActivityRe
     private const int PositiveScoreThreshold = 4;
 
     private readonly IScoreReasonRepository _scoreReasonRepository;
+    private readonly IProjectRepository _projectRepository;
+    private readonly IActivityRepository _activityRepository;
 
-    public ActivityService(IActivityRepository repository, IScoreReasonRepository scoreReasonRepository, IMapper mapper,
-        IValidator<Activity> validator)
+    public ActivityService(IActivityRepository repository, IScoreReasonRepository scoreReasonRepository,
+        IProjectRepository projectRepository, IMapper mapper, IValidator<Activity> validator)
         : base(repository, mapper, validator)
     {
         _scoreReasonRepository = scoreReasonRepository;
+        _projectRepository = projectRepository;
+        _activityRepository = repository;
+    }
+
+    public async Task<List<ActivityResponse>> GetMineAsync(Guid userId, DateTime from, DateTime to)
+    {
+        var activities = await _activityRepository.GetByUserAsync(userId, from.ToUniversalTime(), to.ToUniversalTime());
+        return Mapper.Map<List<ActivityResponse>>(activities);
+    }
+
+    public async Task<ActivityResponse> CreateWithProjectsAsync(ActivityRequest request)
+    {
+        var projects = await GetProjectsAsync(request.ProjectIds);
+
+        var activity = Mapper.Map<Activity>(request);
+        activity.NavigationId = Guid.NewGuid();
+        SyncProjects(activity, projects, request.UserId);
+
+        return await CreateAsync(activity);
+    }
+
+    public async Task<ActivityResponse?> UpdateWithProjectsAsync(Guid id, ActivityRequest request)
+    {
+        var activity = await Repository.GetByIdAsync(id);
+        if (activity is null)
+            return null;
+
+        var projects = await GetProjectsAsync(request.ProjectIds);
+
+        Mapper.Map(request, activity);
+        activity.UpdatedBy = request.UserId;
+        SyncProjects(activity, projects, request.UserId);
+
+        return await UpdateAsync(activity);
+    }
+
+    /// <summary>Projetos ativos do request; lança ValidationException se algum id repetir ou não existir.</summary>
+    private async Task<List<Project>> GetProjectsAsync(List<Guid> projectIds)
+    {
+        var projects = await _projectRepository.GetAllAsync(p => projectIds.Contains(p.NavigationId));
+
+        var failures = new List<ValidationFailure>();
+        if (projectIds.Distinct().Count() != projectIds.Count)
+            failures.Add(new ValidationFailure(nameof(ActivityRequest.ProjectIds), "Cada projeto só pode ser escolhido uma vez."));
+
+        var foundIds = projects.Select(p => p.NavigationId).ToHashSet();
+        foreach (var missingId in projectIds.Where(id => !foundIds.Contains(id)).Distinct())
+            failures.Add(new ValidationFailure(nameof(ActivityRequest.ProjectIds), $"Projeto {missingId} não encontrado."));
+
+        if (failures.Count > 0)
+            throw new ValidationException(failures);
+
+        return projects;
+    }
+
+    /// <summary>Os vínculos que saíram da coleção são apagados (cascade), os que ficaram são mantidos.</summary>
+    private static void SyncProjects(Activity activity, List<Project> projects, Guid userId)
+    {
+        var selectedIds = projects.Select(p => p.NavigationId).ToHashSet();
+        foreach (var removed in activity.Projects.Where(p => !selectedIds.Contains(p.ProjectId)).ToList())
+            activity.Projects.Remove(removed);
+
+        var currentIds = activity.Projects.Select(p => p.ProjectId).ToHashSet();
+        var now = DateTime.UtcNow;
+        foreach (var project in projects.Where(p => !currentIds.Contains(p.NavigationId)))
+        {
+            activity.Projects.Add(new ActivityProject
+            {
+                NavigationId = Guid.NewGuid(),
+                ActivityId = activity.NavigationId,
+                ProjectId = project.NavigationId,
+                Project = project,
+                CreatedAt = now,
+                CreatedBy = userId,
+                Active = true
+            });
+        }
     }
 
     public async Task<ActivityResponse?> ScoreAsync(Guid activityId, Guid userId, ScoreActivityRequest request)

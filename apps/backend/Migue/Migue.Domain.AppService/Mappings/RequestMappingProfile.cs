@@ -9,10 +9,13 @@ public class RequestMappingProfile : Profile
 {
     public RequestMappingProfile()
     {
-        CreateMap<ActivityRequest, Activity>();
+        // os vínculos com projeto são sincronizados no ActivityService (precisam validar se os projetos existem)
+        CreateMap<ActivityRequest, Activity>()
+            .ForMember(dest => dest.Projects, opt => opt.Ignore());
         CreateMap<CompetencyRequest, Competency>();
         CreateMap<ProjectRequest, Project>();
         CreateMap<ScoreReasonRequest, ScoreReason>();
+        CreateMap<ScoreReasonCategoryRequest, ScoreReasonCategory>();
         CreateMap<SoftSkillRequest, SoftSkill>();
         CreateMap<UserSoftSkillAnswerRequest, UserSoftSkillAnswer>();
         CreateMap<UserRequest, User>()

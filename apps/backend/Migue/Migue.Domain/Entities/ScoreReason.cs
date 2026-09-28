@@ -6,7 +6,8 @@ namespace Migue.Domain.Entities;
 public record ScoreReason : BaseEntity
 {
     public string Description { get; set; } = string.Empty;
-    public ScoreReasonCategory Category { get; set; }
+    public Guid CategoryId { get; set; }
+    public ScoreReasonCategory? Category { get; set; }
     public ScoreReasonSentiment Sentiment { get; set; }
     public int Order { get; set; }
 
