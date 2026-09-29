@@ -10,6 +10,6 @@ public interface IScoreReasonCategoryService
     /// <summary>Categorias ativas na ordem de exibição (pra popular selects).</summary>
     Task<List<ScoreReasonCategoryResponse>> GetActiveAsync();
 
-    /// <summary>Categoria com justificativa não pode ser apagada (a FK é Restrict).</summary>
+    /// <summary>Categoria com justificativa ativa não pode ser excluída: o relatório perderia o agrupamento.</summary>
     Task<bool> HasScoreReasonsAsync(Guid navigationId);
 }

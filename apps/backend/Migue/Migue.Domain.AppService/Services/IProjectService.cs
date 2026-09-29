@@ -6,6 +6,6 @@ namespace Migue.Domain.AppService.Services;
 
 public interface IProjectService : IServiceBase<Project, ProjectRequest, ProjectResponse>
 {
-    /// <summary>Projeto com atividade não pode ser apagado (a FK é Restrict e o histórico se perderia).</summary>
+    /// <summary>Projeto com atividade ativa não pode ser excluído: as atividades ficariam apontando pra um projeto inativo.</summary>
     Task<bool> HasActivitiesAsync(Guid navigationId);
 }

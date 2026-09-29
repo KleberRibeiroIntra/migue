@@ -91,6 +91,12 @@ const dailyLogRoute = createRoute({
   component: DailyLogPage,
 })
 
+const dailyLogEditRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/daily/$id',
+  component: DailyLogPage,
+})
+
 const projectsRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: '/projects',
@@ -133,6 +139,7 @@ const routeTree = rootRoute.addChildren([
     ]),
     competenciasFormRoute,
     dailyLogRoute,
+    dailyLogEditRoute,
     projectsRoute,
     scoreReasonCategoriesRoute,
     usersRoute,

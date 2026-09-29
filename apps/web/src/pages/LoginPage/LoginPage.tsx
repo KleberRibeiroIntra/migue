@@ -1,9 +1,9 @@
+import { Box, Button, Field, Flex, HStack, Image, Input, Text, chakra } from '@chakra-ui/react'
 import { useNavigate } from '@tanstack/react-router'
 import { type FormEvent, useState } from 'react'
 import { login } from '../../api/authApi'
 import { ApiError } from '../../api/client'
 import { setAuth } from '../../store/authStore'
-import './LoginPage.css'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -33,59 +33,52 @@ export function LoginPage() {
   }
 
   return (
-    <main className="home">
-      <div className="home__burst" aria-hidden="true" />
-      <div className="home__stamp">100% real</div>
+    <Flex as="main" minH="100vh" direction="column" align="center" justify="center" gap="20px" bg="var(--migue-cream)" p="16px">
+      <Text fontFamily="var(--font-display)" fontWeight="700" fontSize="28px" color="var(--migue-ink)" textAlign="center">
+        entregou ou deu migué?
+      </Text>
 
-      <div className="home__mascot-wrap">
-        <img className="home__mascot" src="/migue-logo.png" alt="Mascote Migué" />
-      </div>
+      <Box w="full" maxW="380px" bg="white" borderWidth="1px" borderColor="blackAlpha.100" borderRadius="16px" p="32px">
+        <HStack gap="10px" mb="24px">
+          <Image src="/migue-logo.png" alt="" boxSize="36px" objectFit="contain" />
+          <Text fontFamily="var(--font-display)" fontWeight="700" fontSize="24px" color="var(--migue-ink)">
+            migué
+          </Text>
+        </HStack>
 
-      <h1 className="home__headline">
-        entregou ou
-        <br />
-        deu migué?
-      </h1>
+        <chakra.form onSubmit={handleSubmit} display="flex" flexDirection="column" gap="16px">
+          <Field.Root required>
+            <Field.Label>Email</Field.Label>
+            <Input
+              type="email"
+              autoComplete="email"
+              placeholder="voce@empresa.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </Field.Root>
 
-      <p className="home__caption">
-        Acompanhe seus projetos e antecipe o feedback antes da reunião de review.
-      </p>
+          <Field.Root required>
+            <Field.Label>Senha</Field.Label>
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </Field.Root>
 
-      <form className="home__form" onSubmit={handleSubmit}>
-        <label className="home__label" htmlFor="email">
-          Email
-        </label>
-        <input
-          id="email"
-          className="home__input"
-          type="email"
-          autoComplete="email"
-          placeholder="voce@empresa.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          {error && (
+            <Text color="red.600" fontSize="14px">
+              {error}
+            </Text>
+          )}
 
-        <label className="home__label" htmlFor="password">
-          Senha
-        </label>
-        <input
-          id="password"
-          className="home__input"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        {error && <p className="home__error">{error}</p>}
-
-        <button className="home__cta" type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
-    </main>
+          <Button type="submit" colorPalette="orange" loading={loading} loadingText="Entrando...">
+            Entrar
+          </Button>
+        </chakra.form>
+      </Box>
+    </Flex>
   )
 }

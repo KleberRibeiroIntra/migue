@@ -85,22 +85,27 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : BaseEntit
 
     public IQueryable<T> Query() => DbSet.Where(e => e.Active);
 
-    public async Task DeleteAsync(T entity)
-    {
-        DbSet.Remove(entity);
-        await Context.SaveChangesAsync();
-    }
+    // Exclusão lógica: a linha fica no banco com Active = false (as consultas daqui já filtram por Active),
+    // então o histórico não se perde e as FKs Restrict não barram a exclusão.
+
+    public Task DeleteAsync(T entity) => DeleteRangeAsync([entity]);
 
     public async Task DeleteRangeAsync(List<T> entities)
     {
-        DbSet.RemoveRange(entities);
+        var now = DateTime.UtcNow;
+        foreach (var entity in entities)
+        {
+            entity.Active = false;
+            entity.UpdatedAt = now;
+        }
+
+        DbSet.UpdateRange(entities);
         await Context.SaveChangesAsync();
     }
 
     public async Task DeleteRangeAsync(List<Guid> navigationIds)
     {
-        var entities = await DbSet.Where(e => navigationIds.Contains(e.NavigationId)).ToListAsync();
-        DbSet.RemoveRange(entities);
-        await Context.SaveChangesAsync();
+        var entities = await DbSet.Where(e => navigationIds.Contains(e.NavigationId) && e.Active).ToListAsync();
+        await DeleteRangeAsync(entities);
     }
 }

@@ -80,4 +80,13 @@ public class ActivityController : ControllerBase
         var scored = await _activityService.ScoreAsync(id, User.GetUserId(), request);
         return scored is null ? NotFound() : Ok(scored);
     }
+
+    /// <summary>Tira a autoavaliação da atividade do usuário autenticado (nota, comentário e justificativas).</summary>
+    [Authorize]
+    [HttpDelete("{id:guid}/score")]
+    public async Task<ActionResult<ActivityResponse>> ClearScore(Guid id)
+    {
+        var cleared = await _activityService.ClearScoreAsync(id, User.GetUserId());
+        return cleared is null ? NotFound() : Ok(cleared);
+    }
 }

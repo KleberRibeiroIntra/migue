@@ -24,9 +24,11 @@ export function ScaleSelector({ value, onChange, options }: ScaleSelectorProps) 
             size="md"
             borderRadius="12px"
             fontSize="15px"
-            variant={selected ? 'solid' : 'outline'}
+            // escolhida fica num laranja clarinho: o laranja cheio é só pra ação principal da tela
+            variant={selected ? 'subtle' : 'outline'}
             colorPalette="orange"
-            color={selected ? undefined : 'var(--migue-ink)'}
+            color={selected ? 'orange.700' : 'var(--migue-ink)'}
+            borderColor={selected ? 'orange.300' : undefined}
             onClick={() => onChange(option.value)}
             aria-pressed={selected}
           >

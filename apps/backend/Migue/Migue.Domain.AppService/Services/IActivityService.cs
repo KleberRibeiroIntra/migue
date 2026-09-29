@@ -17,4 +17,7 @@ public interface IActivityService : IServiceBase<Activity, ActivityRequest, Acti
 
     /// <summary>Registra (ou substitui) a autoavaliação do usuário na atividade: nota, comentário e justificativas. Null se a atividade não existir ou não for do usuário.</summary>
     Task<ActivityResponse?> ScoreAsync(Guid activityId, Guid userId, ScoreActivityRequest request);
+
+    /// <summary>Tira a autoavaliação (nota, comentário e justificativas). Null se a atividade não existir ou não for do usuário.</summary>
+    Task<ActivityResponse?> ClearScoreAsync(Guid activityId, Guid userId);
 }

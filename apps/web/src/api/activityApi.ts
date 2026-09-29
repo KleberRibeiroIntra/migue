@@ -72,6 +72,11 @@ export function scoreActivity(id: string, request: ScoreActivityRequest) {
   return apiFetch<ActivityDto>(`/Activity/${id}/score`, { method: 'PUT', body: JSON.stringify(request) })
 }
 
+/** Tira a autoavaliação da atividade (nota, comentário e justificativas). */
+export function clearActivityScore(id: string) {
+  return apiFetch<ActivityDto>(`/Activity/${id}/score`, { method: 'DELETE' })
+}
+
 /** Catálogo de justificativas na ordem de exibição. */
 export function getScoreReasons() {
   return apiFetch<ScoreReasonDto[]>('/ScoreReason')

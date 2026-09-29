@@ -21,5 +21,5 @@ public class ScoreReasonCategoryRepository : RepositoryBase<ScoreReasonCategory>
             .ToListAsync();
 
     public Task<bool> HasScoreReasonsAsync(Guid categoryId) =>
-        _context.Set<ScoreReason>().AnyAsync(r => r.CategoryId == categoryId);
+        _context.Set<ScoreReason>().AnyAsync(r => r.CategoryId == categoryId && r.Active);
 }

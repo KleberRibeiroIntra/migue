@@ -141,6 +141,20 @@ public class ActivityService : ServiceBase<Activity, ActivityRequest, ActivityRe
         return await UpdateAsync(activity);
     }
 
+    public async Task<ActivityResponse?> ClearScoreAsync(Guid activityId, Guid userId)
+    {
+        var activity = await Repository.GetByIdAsync(activityId);
+        if (activity is null || activity.UserId != userId)
+            return null;
+
+        activity.SelfScore = null;
+        activity.SelfScoreComment = null;
+        activity.ScoreReasons.Clear();
+        activity.UpdatedBy = userId;
+
+        return await UpdateAsync(activity);
+    }
+
     private static List<ValidationFailure> Validate(ScoreActivityRequest request, List<ScoreReason> reasons)
     {
         var failures = new List<ValidationFailure>();

@@ -1,5 +1,7 @@
-import { Badge, Box, Flex, Heading, Table, Text } from '@chakra-ui/react'
+import { Badge, Box, Flex, Heading, IconButton, Table, Text } from '@chakra-ui/react'
+import { Link } from '@tanstack/react-router'
 import type { ActivityDto } from '../../api/activityApi'
+import { EditIcon } from '../../components/icons'
 import { ACTIVITY_STATUS } from '../../data/activityStatus'
 import { activityDay, formatHours } from './weekStats'
 
@@ -25,6 +27,7 @@ export function ActivityTable({ activities }: { activities: ActivityDto[] }) {
             <Table.ColumnHeader>Status</Table.ColumnHeader>
             <Table.ColumnHeader>Nota</Table.ColumnHeader>
             <Table.ColumnHeader textAlign="end">Horas</Table.ColumnHeader>
+            <Table.ColumnHeader w="56px" />
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -67,6 +70,13 @@ export function ActivityTable({ activities }: { activities: ActivityDto[] }) {
                 </Table.Cell>
                 <Table.Cell textAlign="end" fontVariantNumeric="tabular-nums" whiteSpace="nowrap">
                   {activity.durationMinutes ? formatHours(activity.durationMinutes) : '—'}
+                </Table.Cell>
+                <Table.Cell textAlign="end">
+                  <IconButton asChild size="sm" variant="ghost" aria-label={`Editar "${activity.title}"`}>
+                    <Link to="/daily/$id" params={{ id: activity.id }}>
+                      <EditIcon />
+                    </Link>
+                  </IconButton>
                 </Table.Cell>
               </Table.Row>
             )

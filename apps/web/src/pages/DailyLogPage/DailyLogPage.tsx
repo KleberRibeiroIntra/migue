@@ -15,10 +15,14 @@ import {
   createListCollection,
   parseDate,
 } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { type FormEvent, type ReactNode, useMemo, useState } from 'react'
 import {
+  type ActivityDto,
   ActivityStatus,
+  activityApi,
   POSITIVE_SCORE_THRESHOLD,
   ScoreReasonSentiment,
 } from '../../api/activityApi'
@@ -27,6 +31,7 @@ import { useProjects, useRegisterActivity, useScoreReasons } from '../../hooks/u
 import { CalendarIcon } from '../../components/icons'
 import { ACTIVITY_STATUS } from '../../data/activityStatus'
 import { authStore } from '../../store/authStore'
+import { activityDay } from '../DashboardPage/weekStats'
 import { ScaleSelector } from '../CompetenciasFormPage/ScaleSelector'
 import { ReasonPicker } from './ReasonPicker'
 import { StarRating } from './StarRating'
@@ -79,17 +84,55 @@ function emptyDraft(keep?: Pick<Draft, 'projectIds' | 'date'>): Draft {
   }
 }
 
+/** Preenche o formulário com uma atividade já registrada (modo edição). */
+function toDraft(activity: ActivityDto): Draft {
+  return {
+    title: activity.title,
+    projectIds: activity.projects.map((project) => project.id),
+    status: activity.status,
+    date: activityDay(activity),
+    hours: activity.durationMinutes
+      ? (activity.durationMinutes / 60).toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+      : '',
+    description: activity.description ?? '',
+    score: activity.selfScore ?? 0,
+    reasonIds: activity.scoreReasons.map((reason) => reason.id),
+    comment: activity.selfScoreComment ?? '',
+  }
+}
+
 type Errors = Partial<Record<'title' | 'hours' | 'comment' | 'date', string>>
 
+/** Atende /daily (novo registro) e /daily/$id (edição de um registro que já existe). */
 export function DailyLogPage() {
+  const { id } = useParams({ strict: false })
+  const activityQuery = useQuery({
+    queryKey: ['activities', 'detail', id],
+    queryFn: () => activityApi.getById(id!),
+    enabled: !!id,
+  })
+
+  if (!id) return <DailyLogForm />
+
+  if (activityQuery.isLoading) return <Text color="var(--migue-muted)">Carregando o registro...</Text>
+  if (!activityQuery.data) return <Text color="red.600">Não achei esse registro. Talvez tenha sido apagado.</Text>
+
+  // key: trocar de registro recria o formulário com os dados do novo
+  return <DailyLogForm key={id} activity={activityQuery.data} />
+}
+
+function DailyLogForm({ activity }: { activity?: ActivityDto }) {
+  const isEdit = !!activity
+  const navigate = useNavigate()
   const user = useStore(authStore, (state) => state.user)
   const projectsQuery = useProjects()
   const reasonsQuery = useScoreReasons()
   const registerMutation = useRegisterActivity()
 
-  const [draft, setDraft] = useState<Draft>(() => emptyDraft())
+  const [draft, setDraft] = useState<Draft>(() => (activity ? toDraft(activity) : emptyDraft()))
   const [errors, setErrors] = useState<Errors>({})
-  const [createdId, setCreatedId] = useState<string | null>(null)
+  // na edição a atividade já existe: salvar vira um update
+  const [createdId, setCreatedId] = useState<string | null>(activity?.id ?? null)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
 
   const sentiment = draft.score >= POSITIVE_SCORE_THRESHOLD ? ScoreReasonSentiment.Positive : ScoreReasonSentiment.Negative
@@ -161,10 +204,15 @@ export function DailyLogPage() {
           : null,
         createdId,
         onCreated: setCreatedId,
+        clearScore: isEdit && !draft.score && !!activity.selfScore,
       },
       {
-        onSuccess: (activity) => {
-          setLastSaved(activity.title)
+        onSuccess: (saved) => {
+          if (isEdit) {
+            navigate({ to: '/' })
+            return
+          }
+          setLastSaved(saved.title)
           setCreatedId(null)
           setDraft(emptyDraft({ projectIds: draft.projectIds, date: draft.date }))
         },
@@ -178,10 +226,12 @@ export function DailyLogPage() {
   return (
     <Box maxW="720px">
       <Heading fontFamily="var(--font-display)" color="var(--migue-ink)" fontSize="30px">
-        Registro do dia
+        {isEdit ? 'Editar registro' : 'Registro do dia'}
       </Heading>
       <Text color="var(--migue-muted)" fontSize="17px" mt="4px" mb="24px">
-        Conta aí o que rolou hoje. Anotando agora, ninguém vem dizer depois que você deu migué.
+        {isEdit
+          ? 'Esqueceu algum detalhe? Ajusta aí, sem culpa.'
+          : 'Conta aí o que rolou hoje. Anotando agora, ninguém vem dizer depois que você deu migué.'}
       </Text>
 
       <chakra.form onSubmit={handleSubmit} noValidate>
@@ -348,7 +398,7 @@ export function DailyLogPage() {
         {registerMutation.isError && (
           <Box mt="16px">
             <Text color="red.600" fontSize="16px">
-              {createdId
+              {createdId && !isEdit
                 ? 'A atividade foi salva, mas a nota não. Tenta de novo que só a nota vai.'
                 : 'Não deu pra salvar. Tenta de novo.'}
             </Text>
@@ -366,18 +416,24 @@ export function DailyLogPage() {
           </Text>
         )}
 
-        <Button
-          type="submit"
-          size="lg"
-          px="32px"
-          borderRadius="14px"
-          fontSize="17px"
-          mt="24px"
-          loading={registerMutation.isPending}
-          colorPalette="orange"
-        >
-          Registrar
-        </Button>
+        <Flex align="center" gap="12px" mt="24px">
+          <Button
+            type="submit"
+            size="lg"
+            px="32px"
+            borderRadius="14px"
+            fontSize="17px"
+            loading={registerMutation.isPending}
+            colorPalette="orange"
+          >
+            {isEdit ? 'Salvar alterações' : 'Registrar'}
+          </Button>
+          {isEdit && (
+            <Button asChild size="lg" variant="outline" colorPalette="orange" color="var(--migue-ink)" borderRadius="14px">
+              <Link to="/">Cancelar</Link>
+            </Button>
+          )}
+        </Flex>
       </chakra.form>
     </Box>
   )

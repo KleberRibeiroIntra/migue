@@ -20,9 +20,11 @@ export function ReasonPicker({ reasons, selectedIds, onToggle }: ReasonPickerPro
             size="sm"
             borderRadius="full"
             fontSize="14px"
-            variant={selected ? 'solid' : 'outline'}
+            // escolhida fica num laranja clarinho: o laranja cheio é só pra ação principal da tela
+            variant={selected ? 'subtle' : 'outline'}
             colorPalette="orange"
-            color={selected ? undefined : 'var(--migue-ink)'}
+            color={selected ? 'orange.700' : 'var(--migue-ink)'}
+            borderColor={selected ? 'orange.300' : undefined}
             onClick={() => onToggle(reason.id)}
             aria-pressed={selected}
           >

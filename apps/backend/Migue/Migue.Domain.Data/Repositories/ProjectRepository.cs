@@ -14,5 +14,5 @@ public class ProjectRepository : RepositoryBase<Project>, IProjectRepository
     }
 
     public Task<bool> HasActivitiesAsync(Guid projectId) =>
-        _context.Set<ActivityProject>().AnyAsync(a => a.ProjectId == projectId);
+        _context.Set<ActivityProject>().AnyAsync(a => a.ProjectId == projectId && a.Activity!.Active);
 }
