@@ -45,6 +45,15 @@ export function DailyLogIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function BlogIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M4 4h12l4 4v12H4Z" />
+      <path d="M8 10h8M8 14h8M8 18h5" />
+    </IconBase>
+  )
+}
+
 export function TagIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

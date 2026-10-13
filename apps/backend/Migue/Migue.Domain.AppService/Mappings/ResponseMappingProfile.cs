@@ -35,6 +35,16 @@ public class ResponseMappingProfile : Profile
         CreateMap<ScoreReasonCategory, ScoreReasonCategoryResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 
+        CreateMap<Tag, TagResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
+
+        CreateMap<Article, ArticleResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId))
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags
+                .Where(t => t.Tag != null)
+                .Select(t => t.Tag)
+                .OrderBy(t => t!.Name)));
+
         CreateMap<Project, ProjectResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.NavigationId));
 

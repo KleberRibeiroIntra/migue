@@ -163,6 +163,105 @@ namespace Migue.Domain.Data.Migrations
                     b.ToTable("ActivityScoreReason");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.Article", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Article");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.ArticleTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("ArticleId", "TagId")
+                        .IsUnique();
+
+                    b.ToTable("ArticleTag");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.Competency", b =>
                 {
                     b.Property<int>("Id")
@@ -560,6 +659,45 @@ namespace Migue.Domain.Data.Migrations
                     b.ToTable("SoftSkillOption");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("NavigationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("NavigationId")
+                        .IsUnique();
+
+                    b.ToTable("Tag");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -752,6 +890,27 @@ namespace Migue.Domain.Data.Migrations
                     b.Navigation("ScoreReason");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.ArticleTag", b =>
+                {
+                    b.HasOne("Migue.Domain.Entities.Article", "Article")
+                        .WithMany("Tags")
+                        .HasForeignKey("ArticleId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Migue.Domain.Entities.Tag", "Tag")
+                        .WithMany("Articles")
+                        .HasForeignKey("TagId")
+                        .HasPrincipalKey("NavigationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.CompetencyAssessment", b =>
                 {
                     b.HasOne("Migue.Domain.Entities.User", "User")
@@ -888,6 +1047,11 @@ namespace Migue.Domain.Data.Migrations
                     b.Navigation("ScoreReasons");
                 });
 
+            modelBuilder.Entity("Migue.Domain.Entities.Article", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
             modelBuilder.Entity("Migue.Domain.Entities.Competency", b =>
                 {
                     b.Navigation("Questions");
@@ -935,6 +1099,11 @@ namespace Migue.Domain.Data.Migrations
             modelBuilder.Entity("Migue.Domain.Entities.SoftSkillOption", b =>
                 {
                     b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Migue.Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("Articles");
                 });
 
             modelBuilder.Entity("Migue.Domain.Entities.User", b =>

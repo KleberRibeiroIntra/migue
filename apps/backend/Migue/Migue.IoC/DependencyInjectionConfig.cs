@@ -18,6 +18,7 @@ public static class DependencyInjectionConfig
         services.AddDbContext<MigueDbContext>(options => options.UseSqlite(connectionString));
 
         services.AddScoped<IActivityRepository, ActivityRepository>();
+        services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<ICompetencyAssessmentRepository, CompetencyAssessmentRepository>();
         services.AddScoped<ICompetencyRepository, CompetencyRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
@@ -28,6 +29,7 @@ public static class DependencyInjectionConfig
         services.AddScoped<IUserSoftSkillAnswerRepository, UserSoftSkillAnswerRepository>();
 
         services.AddScoped<IActivityService, ActivityService>();
+        services.AddScoped<IArticleService, ArticleService>();
         services.AddScoped<ICompetencyAssessmentService, CompetencyAssessmentService>();
         services.AddScoped<ICompetencyService, CompetencyService>();
         services.AddScoped<ICompetencyReportService, CompetencyReportService>();

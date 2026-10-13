@@ -79,6 +79,11 @@ public static class DbSeeder
         ("Outro", "Outros", ScoreReasonSentiment.Positive, true),
     ];
 
+    private static readonly string[] TagNames =
+    [
+        "Agilidade",
+    ];
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -92,6 +97,29 @@ public static class DbSeeder
         await SeedCompetencyOptionScoresAsync(context);
         await SeedScoreReasonCategoriesAsync(context);
         await SeedScoreReasonsAsync(context);
+        await SeedTagsAsync(context);
+    }
+
+    /// <summary>Cria só as tags que ainda não existem, então dá pra ir adicionando nomes na lista.</summary>
+    public static async Task SeedTagsAsync(MigueDbContext context)
+    {
+        var existing = await context.Set<Tag>().Select(t => t.Name).ToListAsync();
+
+        var now = DateTime.UtcNow;
+        var tags = TagNames.Except(existing).Select(name => new Tag
+        {
+            NavigationId = Guid.NewGuid(),
+            Name = name,
+            CreatedAt = now,
+            CreatedBy = Guid.Empty,
+            Active = true
+        }).ToList();
+
+        if (tags.Count == 0)
+            return;
+
+        await context.Set<Tag>().AddRangeAsync(tags);
+        await context.SaveChangesAsync();
     }
 
     public static async Task SeedScoreReasonCategoriesAsync(MigueDbContext context)

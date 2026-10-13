@@ -10,6 +10,8 @@ import { DailyLogPage } from './pages/DailyLogPage/DailyLogPage'
 import { ProjectsPage } from './pages/ProjectsPage/ProjectsPage'
 import { ScoreReasonCategoriesPage } from './pages/ScoreReasonCategoriesPage/ScoreReasonCategoriesPage'
 import { UsersPage } from './pages/UsersPage/UsersPage'
+import { BlogPage } from './pages/BlogPage/BlogPage'
+import { ArticlePage } from './pages/BlogPage/ArticlePage'
 import { UserFormPage } from './pages/UserFormPage/UserFormPage'
 import { authStore } from './store/authStore'
 
@@ -109,6 +111,18 @@ const scoreReasonCategoriesRoute = createRoute({
   component: ScoreReasonCategoriesPage,
 })
 
+const blogRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/blog',
+  component: BlogPage,
+})
+
+const articleRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/blog/$slug',
+  component: ArticlePage,
+})
+
 const usersRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: '/users',
@@ -142,6 +156,8 @@ const routeTree = rootRoute.addChildren([
     dailyLogEditRoute,
     projectsRoute,
     scoreReasonCategoriesRoute,
+    blogRoute,
+    articleRoute,
     usersRoute,
     userCreateRoute,
     userEditRoute,

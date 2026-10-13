@@ -4,6 +4,7 @@ import { Link, type LinkProps, useRouterState } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { type ComponentType, type ReactNode, type SVGProps, useState } from 'react'
 import {
+  BlogIcon,
   ChevronDownIcon,
   DailyLogIcon,
   DashboardIcon,
@@ -180,6 +181,11 @@ export function SidebarNav() {
             ))}
           </Flex>
         )}
+
+        <NavLink to="/blog">
+          <BlogIcon />
+          Blog
+        </NavLink>
       </Flex>
 
       {user && (
