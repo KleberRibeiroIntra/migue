@@ -169,7 +169,6 @@ function DailyLogForm({ activity }: { activity?: ActivityDto }) {
     const found: Errors = {}
     if (!draft.title.trim()) found.title = 'Conta o que você fez, nem que seja uma linha.'
     if (!draft.date) found.date = 'Escolhe o dia.'
-    else if (draft.date > today()) found.date = 'Registrar o futuro já é migué, né?'
     const hours = Number(draft.hours.replace(',', '.'))
     if (draft.hours && (Number.isNaN(hours) || hours <= 0 || hours > 24)) found.hours = 'Coloca um tempo entre 0 e 24 horas.'
     if (commentRequired && !draft.comment.trim()) found.comment = 'Você marcou "Outro", então explica aí o que foi.'
@@ -299,7 +298,6 @@ function DailyLogForm({ activity }: { activity?: ActivityDto }) {
                 <DatePicker.Root
                   locale="pt-BR"
                   value={draft.date ? [parseDate(draft.date)] : []}
-                  max={parseDate(today())}
                   onValueChange={(details) => update('date', details.value[0]?.toString() ?? '')}
                 >
                   <DatePicker.Control>

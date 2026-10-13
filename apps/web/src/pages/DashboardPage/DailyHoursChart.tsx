@@ -38,11 +38,15 @@ export function DailyHoursChart({ days }: { days: DayBucket[] }) {
 function DayColumn({ day, max }: { day: DayBucket; max: number }) {
   const height = day.minutes > 0 ? Math.max(4, (day.minutes / max) * PLOT_HEIGHT) : 0
   const date = day.date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  const activities = `${day.count} ${day.count === 1 ? 'atividade' : 'atividades'}`
+  // dia futuro com registro é planejamento: aparece como previsto até você dar baixa
   const summary = day.isFuture
-    ? 'Ainda não chegou'
+    ? day.count > 0
+      ? `Previsto: ${formatHours(day.minutes)} · ${activities}`
+      : 'Ainda não chegou'
     : day.count === 0
       ? 'Nada registrado'
-      : `${formatHours(day.minutes)} · ${day.count} ${day.count === 1 ? 'atividade' : 'atividades'}`
+      : `${formatHours(day.minutes)} · ${activities}`
 
   return (
     <Tooltip.Root openDelay={80} closeDelay={0} positioning={{ placement: 'top' }}>
@@ -72,7 +76,7 @@ function DayColumn({ day, max }: { day: DayBucket; max: number }) {
                 </Text>
               )
             )}
-            <Box w="24px" h={`${height}px`} bg="var(--migue-accent)" borderTopRadius="4px" />
+            <Box w="24px" h={`${height}px`} bg={day.isFuture ? 'orange.200' : 'var(--migue-accent)'} borderTopRadius="4px" />
           </Flex>
           <Text fontSize="13px" fontWeight="600" mt="8px" color={day.isFuture ? 'blackAlpha.400' : 'var(--migue-muted)'}>
             {day.label}
