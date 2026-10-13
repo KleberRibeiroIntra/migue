@@ -15,6 +15,11 @@ public class RequestMappingProfile : Profile
             .ForMember(dest => dest.Projects, opt => opt.Ignore())
             .ForMember(dest => dest.SelfScore, opt => opt.Ignore())
             .ForMember(dest => dest.SelfScoreComment, opt => opt.Ignore());
+        // autor, data de publicação e tags são tratados no ArticleService
+        CreateMap<ArticleRequest, Article>()
+            .ForMember(dest => dest.Tags, opt => opt.Ignore())
+            .ForMember(dest => dest.PublishedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.AuthorId, opt => opt.Ignore());
         CreateMap<CompetencyRequest, Competency>();
         CreateMap<ProjectRequest, Project>();
         CreateMap<ScoreReasonRequest, ScoreReason>();

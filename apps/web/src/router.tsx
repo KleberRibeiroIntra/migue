@@ -12,6 +12,7 @@ import { ScoreReasonCategoriesPage } from './pages/ScoreReasonCategoriesPage/Sco
 import { UsersPage } from './pages/UsersPage/UsersPage'
 import { BlogPage } from './pages/BlogPage/BlogPage'
 import { ArticlePage } from './pages/BlogPage/ArticlePage'
+import { ArticleFormPage } from './pages/BlogPage/ArticleFormPage'
 import { UserFormPage } from './pages/UserFormPage/UserFormPage'
 import { authStore } from './store/authStore'
 
@@ -123,6 +124,12 @@ const articleRoute = createRoute({
   component: ArticlePage,
 })
 
+const articleEditRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: '/blog/edit/$id',
+  component: ArticleFormPage,
+})
+
 const usersRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: '/users',
@@ -158,6 +165,7 @@ const routeTree = rootRoute.addChildren([
     scoreReasonCategoriesRoute,
     blogRoute,
     articleRoute,
+    articleEditRoute,
     usersRoute,
     userCreateRoute,
     userEditRoute,

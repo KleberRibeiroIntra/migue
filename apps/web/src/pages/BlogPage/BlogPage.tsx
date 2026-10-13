@@ -1,47 +1,65 @@
-import { Badge, Box, Flex, Heading, Stack, Text } from '@chakra-ui/react'
+import { Badge, Box, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
 import type { ArticleDto } from '../../api/articleApi'
+import { EditIcon } from '../../components/icons'
 import { useArticles } from '../../hooks/useArticles'
 import { formatArticleDate } from './articleFormat'
 
 function ArticleCard({ article }: { article: ArticleDto }) {
   return (
-    <Box
-      asChild
-      display="block"
-      bg="white"
-      borderWidth="1px"
-      borderColor="blackAlpha.100"
-      borderRadius="16px"
-      p="20px"
-      transition="border-color 120ms ease, box-shadow 120ms ease"
-      _hover={{
-        borderColor: 'orange.300',
-        boxShadow: '0 6px 16px -8px rgba(0, 0, 0, 0.15)',
-      }}
-    >
-      <Link to="/blog/$slug" params={{ slug: article.slug }}>
-        <Text fontSize="13px" color="var(--migue-muted)">
-          {formatArticleDate(article.publishedAt ?? article.createdAt)}
-        </Text>
-        <Heading fontSize="20px" fontFamily="var(--font-display)" color="var(--migue-ink)" mt="4px">
-          {article.title}
-        </Heading>
-        {article.summary && (
-          <Text color="var(--migue-muted)" fontSize="15px" mt="6px">
-            {article.summary}
+    // o lápis fica por cima do card (link dentro de link não pode)
+    <Box position="relative">
+      <Box
+        asChild
+        display="block"
+        pr="56px"
+        bg="white"
+        borderWidth="1px"
+        borderColor="blackAlpha.100"
+        borderRadius="16px"
+        p="20px"
+        transition="border-color 120ms ease, box-shadow 120ms ease"
+        _hover={{
+          borderColor: 'orange.300',
+          boxShadow: '0 6px 16px -8px rgba(0, 0, 0, 0.15)',
+        }}
+      >
+        <Link to="/blog/$slug" params={{ slug: article.slug }}>
+          <Text fontSize="13px" color="var(--migue-muted)">
+            {formatArticleDate(article.publishedAt ?? article.createdAt)}
           </Text>
-        )}
-        {article.tags.length > 0 && (
-          <Flex gap="6px" wrap="wrap" mt="12px">
-            {article.tags.map((tag) => (
-              <Badge key={tag.id} colorPalette="orange" variant="subtle">
-                {tag.name}
-              </Badge>
-            ))}
-          </Flex>
-        )}
-      </Link>
+          <Heading fontSize="20px" fontFamily="var(--font-display)" color="var(--migue-ink)" mt="4px">
+            {article.title}
+          </Heading>
+          {article.summary && (
+            <Text color="var(--migue-muted)" fontSize="15px" mt="6px">
+              {article.summary}
+            </Text>
+          )}
+          {article.tags.length > 0 && (
+            <Flex gap="6px" wrap="wrap" mt="12px">
+              {article.tags.map((tag) => (
+                <Badge key={tag.id} colorPalette="orange" variant="subtle">
+                  {tag.name}
+                </Badge>
+              ))}
+            </Flex>
+          )}
+        </Link>
+      </Box>
+      <IconButton
+        asChild
+        size="sm"
+        variant="ghost"
+        position="absolute"
+        top="12px"
+        right="12px"
+        aria-label={`Editar "${article.title}"`}
+      >
+        <Link to="/blog/edit/$id" params={{ id: article.id }}>
+          <EditIcon />
+        </Link>
+      </IconButton>
     </Box>
   )
 }
